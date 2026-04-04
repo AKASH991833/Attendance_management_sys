@@ -6,188 +6,70 @@
 
 {% block extra_css %}
 <style>
-    /* Attendance Page - Glassmorphism */
-    .attendance-header {
+    /* Monthly Attendance Grid */
+    .monthly-header {
         background: var(--glass-bg);
         backdrop-filter: blur(30px);
         -webkit-backdrop-filter: blur(30px);
         border: 1px solid var(--glass-border);
         border-radius: var(--radius-2xl);
-        padding: clamp(2rem, 5vw, 3rem);
+        padding: clamp(1.5rem, 4vw, 2.5rem);
         margin-bottom: 2rem;
         box-shadow: var(--glass-shadow);
-        position: relative;
-        overflow: hidden;
     }
-    
-    .attendance-header::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -10%;
-        width: 200px;
-        height: 200px;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-        border-radius: 50%;
-        animation: pulse 6s ease-in-out infinite;
-    }
-    
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); opacity: 0.5; }
-        50% { transform: scale(1.3); opacity: 0.8; }
-    }
-    
-    .header-content {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 1.5rem;
-    }
-    
-    .header-title h1 {
+
+    .monthly-header h1 {
         font-size: clamp(1.5rem, 4vw, 2.5rem);
         font-weight: 900;
-        margin: 0 0 0.5rem 0;
         color: rgba(255, 255, 255, 0.98);
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        margin: 0 0 0.5rem 0;
         display: flex;
         align-items: center;
         gap: 0.875rem;
     }
-    
-    .header-title p {
+
+    .monthly-header p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1rem;
         margin: 0;
-        color: rgba(255, 255, 255, 0.8);
-        font-size: clamp(0.9rem, 2vw, 1.1rem);
-        font-weight: 500;
     }
-    
-    /* Stats Row */
-    .stats-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-    
-    .stat-card {
+
+    /* Filter Section */
+    .filter-section {
         background: var(--glass-bg);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border: 1px solid var(--glass-border);
         border-radius: var(--radius-xl);
-        padding: clamp(1.5rem, 3vw, 2rem);
-        box-shadow: var(--glass-shadow);
-        transition: var(--transition);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-8px);
-        background: var(--glass-bg-light);
-        box-shadow: var(--glass-shadow-lg);
-        border-color: rgba(255, 255, 255, 0.25);
-    }
-    
-    .stat-icon {
-        width: 56px;
-        height: 56px;
-        border-radius: var(--radius-lg);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.75rem;
-        margin-bottom: 1rem;
-        color: #fff;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    }
-    
-    .stat-value {
-        font-size: clamp(2rem, 5vw, 2.5rem);
-        font-weight: 900;
-        color: rgba(255, 255, 255, 0.98);
-        margin-bottom: 0.25rem;
-        line-height: 1;
-    }
-    
-    .stat-label {
-        color: rgba(255, 255, 255, 0.8);
-        font-size: clamp(0.85rem, 1.8vw, 1rem);
-        font-weight: 600;
-    }
-    
-    /* Filter Card */
-    .filter-card-modern {
-        background: var(--glass-bg);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--radius-xl);
-        padding: clamp(1.5rem, 3vw, 2rem);
+        padding: clamp(1.25rem, 3vw, 2rem);
         margin-bottom: 2rem;
         box-shadow: var(--glass-shadow);
     }
-    
-    .filter-title {
-        font-size: clamp(1.1rem, 3vw, 1.3rem);
-        font-weight: 800;
-        color: rgba(255, 255, 255, 0.95);
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-    }
-    
-    .filter-title i {
-        color: var(--primary-light);
-    }
-    
+
     .filter-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 1.25rem;
         align-items: end;
     }
-    
+
     .filter-group {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
     }
-    
+
     .filter-group label {
         font-weight: 600;
         color: rgba(255, 255, 255, 0.9);
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         display: flex;
         align-items: center;
         gap: 0.5rem;
     }
-    
-    .filter-group label i {
-        color: var(--primary-light);
-        font-size: 0.9rem;
-    }
-    
-    .filter-input {
+
+    .filter-input,
+    .filter-select {
         padding: 0.75rem 1rem;
         border: 2px solid rgba(255, 255, 255, 0.15);
         border-radius: var(--radius-lg);
@@ -198,88 +80,129 @@
         backdrop-filter: blur(10px);
         color: rgba(255, 255, 255, 0.95);
     }
-    
-    .filter-input:focus {
+
+    .filter-input:focus,
+    .filter-select:focus {
         border-color: var(--primary);
         background: rgba(255, 255, 255, 0.12);
-        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
     }
-    
-    .filter-input option {
+
+    .filter-select option {
         background: #1e293b;
         color: rgba(255, 255, 255, 0.95);
     }
-    
-    /* Attendance Grid */
-    .attendance-grid-container {
+
+    .btn-filter {
+        padding: 0.75rem 1.5rem;
+        background: rgba(255, 255, 255, 0.08);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius-lg);
+        color: rgba(255, 255, 255, 0.95);
+        font-weight: 700;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .btn-filter:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Attendance Table Container */
+    .attendance-table-container {
         background: var(--glass-bg);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border: 1px solid var(--glass-border);
         border-radius: var(--radius-xl);
-        padding: clamp(1.5rem, 3vw, 2rem);
+        padding: 1.5rem;
         margin-bottom: 2rem;
         box-shadow: var(--glass-shadow);
         overflow-x: auto;
     }
-    
-    .attendance-table {
+
+    /* Monthly Attendance Table */
+    .monthly-attendance-table {
         width: 100%;
-        border-collapse: collapse;
-        min-width: 800px;
+        min-width: 1200px;
+        border-collapse: separate;
+        border-spacing: 0;
     }
-    
-    .attendance-table th {
-        padding: 1rem 1.25rem;
-        text-align: left;
-        font-weight: 800;
-        color: rgba(255, 255, 255, 0.7);
-        text-transform: uppercase;
+
+    .monthly-attendance-table th {
+        background: rgba(255, 255, 255, 0.08);
+        padding: 0.75rem 0.5rem;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.9);
         font-size: 0.75rem;
+        text-transform: uppercase;
         letter-spacing: 0.05em;
-        background: rgba(255, 255, 255, 0.05);
-        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-        white-space: nowrap;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 10;
     }
-    
-    .attendance-table tbody tr {
-        background: rgba(255, 255, 255, 0.03);
+
+    .monthly-attendance-table th.student-col {
+        min-width: 200px;
+        text-align: left;
+        padding-left: 1rem;
+    }
+
+    .monthly-attendance-table th.date-col {
+        min-width: 45px;
+        width: 45px;
+        text-align: center;
+    }
+
+    /* Sunday Header Styling */
+    .monthly-attendance-table th.sunday-col {
+        background: rgba(239, 68, 68, 0.2);
+        color: #fca5a5;
+    }
+
+    .monthly-attendance-table th.sunday-col .sunday-indicator {
+        display: block;
+        width: 28px;
+        height: 28px;
+        background: radial-gradient(circle, rgba(239, 68, 68, 0.8) 0%, rgba(239, 68, 68, 0.4) 100%);
+        border-radius: 50%;
+        margin: 0 auto;
+        line-height: 28px;
+        font-size: 0.7rem;
+        color: white;
+        font-weight: 900;
+    }
+
+    .monthly-attendance-table tbody tr {
         transition: var(--transition);
     }
-    
-    .attendance-table tbody tr:hover {
-        background: rgba(255, 255, 255, 0.08);
+
+    .monthly-attendance-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.05);
     }
-    
-    .attendance-table td {
-        padding: 1rem 1.25rem;
-        color: rgba(255, 255, 255, 0.9);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        font-weight: 500;
-        font-size: 0.9rem;
+
+    .monthly-attendance-table td {
+        padding: 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        text-align: center;
+        vertical-align: middle;
     }
-    
-    .attendance-table tbody tr:last-child td {
-        border-bottom: none;
+
+    .monthly-attendance-table td.student-cell {
+        text-align: left;
+        padding-left: 1rem;
+        min-width: 200px;
+        background: rgba(255, 255, 255, 0.03);
     }
-    
-    /* Attendance Checkbox */
-    .attendance-checkbox {
-        width: 24px;
-        height: 24px;
-        border-radius: 6px;
-        cursor: pointer;
-        accent-color: #10b981;
-    }
-    
-    /* Student Info in Table */
-    .student-info-cell {
+
+    .student-info {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 0.75rem;
     }
-    
-    .student-avatar-small {
+
+    .student-avatar {
         width: 40px;
         height: 40px;
         border-radius: 50%;
@@ -288,41 +211,162 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #fff;
+        color: rgba(255, 255, 255, 0.9);
         font-weight: 700;
         font-size: 0.9rem;
         flex-shrink: 0;
     }
-    
-    .student-name-cell {
+
+    .student-name {
         font-weight: 700;
         color: rgba(255, 255, 255, 0.95);
+        font-size: 0.9rem;
     }
-    
-    .student-roll-cell {
-        font-size: 0.8rem;
+
+    .student-roll {
+        font-size: 0.75rem;
         color: rgba(255, 255, 255, 0.6);
     }
-    
-    /* Action Buttons */
-    .action-buttons {
-        display: flex;
-        gap: 0.5rem;
+
+    /* Attendance Cell - Clickable */
+    .attendance-cell {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.7rem;
+        position: relative;
+        user-select: none;
     }
-    
-    .btn-sm {
-        padding: 0.5rem 1rem;
-        font-size: 0.8125rem;
+
+    .attendance-cell:hover {
+        transform: scale(1.15);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
-    
-    /* Submit Section */
-    .submit-section {
+
+    /* Empty Circle */
+    .attendance-cell.empty {
+        background: transparent;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .attendance-cell.empty:hover {
+        border-color: rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Status Colors */
+    .attendance-cell.present {
+        background: radial-gradient(circle, rgba(16, 185, 129, 0.9) 0%, rgba(16, 185, 129, 0.6) 100%);
+        color: white;
+        border: 2px solid rgba(16, 185, 129, 1);
+    }
+
+    .attendance-cell.absent {
+        background: radial-gradient(circle, rgba(239, 68, 68, 0.9) 0%, rgba(239, 68, 68, 0.6) 100%);
+        color: white;
+        border: 2px solid rgba(239, 68, 68, 1);
+    }
+
+    .attendance-cell.late {
+        background: radial-gradient(circle, rgba(245, 158, 11, 0.9) 0%, rgba(245, 158, 11, 0.6) 100%);
+        color: white;
+        border: 2px solid rgba(245, 158, 11, 1);
+    }
+
+    /* Sunday Column Cells */
+    .attendance-cell.sunday {
+        background: rgba(239, 68, 68, 0.15);
+        border: 2px solid rgba(239, 68, 68, 0.3);
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
+    .attendance-cell.sunday:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* Future Date Cells */
+    .attendance-cell.future {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        cursor: not-allowed;
+        opacity: 0.3;
+    }
+
+    .attendance-cell.future:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* Legend */
+    .legend {
         background: var(--glass-bg);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border: 1px solid var(--glass-border);
         border-radius: var(--radius-xl);
-        padding: clamp(1.5rem, 3vw, 2rem);
+        padding: clamp(1.25rem, 3vw, 2rem);
+        margin-bottom: 2rem;
+        box-shadow: var(--glass-shadow);
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .legend-dot {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+    }
+
+    .legend-dot.present {
+        background: radial-gradient(circle, rgba(16, 185, 129, 0.9) 0%, rgba(16, 185, 129, 0.6) 100%);
+        border: 2px solid rgba(16, 185, 129, 1);
+    }
+
+    .legend-dot.absent {
+        background: radial-gradient(circle, rgba(239, 68, 68, 0.9) 0%, rgba(239, 68, 68, 0.6) 100%);
+        border: 2px solid rgba(239, 68, 68, 1);
+    }
+
+    .legend-dot.late {
+        background: radial-gradient(circle, rgba(245, 158, 11, 0.9) 0%, rgba(245, 158, 11, 0.6) 100%);
+        border: 2px solid rgba(245, 158, 11, 1);
+    }
+
+    .legend-dot.sunday {
+        background: radial-gradient(circle, rgba(239, 68, 68, 0.8) 0%, rgba(239, 68, 68, 0.4) 100%);
+        border: 2px solid rgba(239, 68, 68, 1);
+    }
+
+    .legend-label {
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    /* Save Button Section */
+    .save-section {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: clamp(1.25rem, 3vw, 2rem);
         box-shadow: var(--glass-shadow);
         display: flex;
         justify-content: space-between;
@@ -330,245 +374,321 @@
         flex-wrap: wrap;
         gap: 1.5rem;
     }
-    
-    .attendance-summary {
+
+    .save-stats {
         display: flex;
         gap: 2rem;
         flex-wrap: wrap;
     }
-    
-    .summary-item {
+
+    .stat-item {
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        font-size: 0.95rem;
-        font-weight: 600;
         color: rgba(255, 255, 255, 0.9);
+        font-weight: 600;
     }
-    
-    .summary-item i {
-        font-size: 1.2rem;
-    }
-    
-    .summary-item.present i {
+
+    .btn-save {
+        padding: 0.875rem 2rem;
+        background: rgba(16, 185, 129, 0.2);
+        border: 2px solid rgba(16, 185, 129, 0.5);
+        border-radius: var(--radius-lg);
         color: #6ee7b7;
+        font-weight: 800;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
     }
-    
-    .summary-item.absent i {
-        color: #fca5a5;
+
+    .btn-save:hover {
+        background: rgba(16, 185, 129, 0.3);
+        border-color: rgba(16, 185, 129, 0.8);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
     }
-    
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        font-size: 1.5rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
-        .header-content {
+        .filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .legend {
             flex-direction: column;
             align-items: flex-start;
         }
-        
-        .submit-section {
+
+        .save-section {
             flex-direction: column;
             align-items: flex-start;
-        }
-        
-        .attendance-summary {
-            width: 100%;
         }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Attendance Header -->
-<div class="attendance-header">
-    <div class="header-content">
-        <div class="header-title">
-            <h1>
-                <i class="fas fa-calendar-check"></i>
-                Mark Attendance
-            </h1>
-            <p>Select students and mark their attendance for the selected date</p>
-        </div>
-        <div class="page-actions">
-            <a href="/attendance/history/" class="btn-glass">
-                <i class="fas fa-history"></i>
-                View History
-            </a>
-        </div>
-    </div>
+<!-- Monthly Attendance Header -->
+<div class="monthly-header">
+    <h1>
+        <i class="fas fa-calendar-alt"></i>
+        Monthly Attendance - {{ month_name }}
+    </h1>
+    <p>Click on cells to toggle attendance status: Present → Absent → Late → Present</p>
 </div>
 
-<!-- Stats Row -->
-<div class="stats-row">
-    <div class="stat-card">
-        <div class="stat-icon">
-            <i class="fas fa-users"></i>
+<!-- Filter Section -->
+<div class="filter-section">
+    <form method="get" class="filter-grid">
+        <div class="filter-group">
+            <label>
+                <i class="fas fa-calendar"></i>
+                Month
+            </label>
+            <input type="month" name="month" class="filter-input" value="{{ selected_month }}">
         </div>
-        <div class="stat-value">{{ total_students }}</div>
-        <div class="stat-label">Total Students</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon">
-            <i class="fas fa-check-circle"></i>
+        <div class="filter-group">
+            <label>
+                <i class="fas fa-chalkboard-teacher"></i>
+                Batch
+            </label>
+            <select name="batch" class="filter-select">
+                <option value="">Select Batch</option>
+                {% for batch in batches %}
+                <option value="{{ batch.id }}" {% if selected_batch_id == batch.id|stringformat:"s" %}selected{% endif %}>
+                    {{ batch.name }}
+                </option>
+                {% endfor %}
+            </select>
         </div>
-        <div class="stat-value" id="presentCount">0</div>
-        <div class="stat-label">Marked Present</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon">
-            <i class="fas fa-times-circle"></i>
-        </div>
-        <div class="stat-value" id="absentCount">0</div>
-        <div class="stat-label">Marked Absent</div>
-    </div>
-</div>
-
-<!-- Filter Card -->
-<div class="filter-card-modern">
-    <h3 class="filter-title">
-        <i class="fas fa-filter"></i>
-        Filter Options
-    </h3>
-    <form method="get" class="filters-form">
-        <div class="filter-grid">
-            <div class="filter-group">
-                <label>
-                    <i class="fas fa-calendar"></i>
-                    Date
-                </label>
-                <input type="date" name="date" class="filter-input" value="{{ selected_date|date:'Y-m-d' }}">
-            </div>
-            <div class="filter-group">
-                <label>
-                    <i class="fas fa-chalkboard-teacher"></i>
-                    Batch
-                </label>
-                <select name="batch" class="filter-input">
-                    <option value="">All Batches</option>
-                    {% for batch in batches %}
-                    <option value="{{ batch.id }}" {% if selected_batch == batch.id|stringformat:"s" %}selected{% endif %}>
-                        {{ batch.name }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="filter-actions">
-                <button type="submit" class="btn-glass btn-glass-primary">
-                    <i class="fas fa-search"></i>
-                    Filter
-                </button>
-                <a href="/attendance/mark/" class="btn-glass">
-                    <i class="fas fa-undo"></i>
-                    Reset
-                </a>
-            </div>
+        <div class="filter-group">
+            <label>&nbsp;</label>
+            <button type="submit" class="btn-filter">
+                <i class="fas fa-search"></i>
+                Load Students
+            </button>
         </div>
     </form>
 </div>
 
+<!-- Legend -->
+<div class="legend">
+    <div class="legend-item">
+        <div class="legend-dot present"></div>
+        <span class="legend-label">Present</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-dot absent"></div>
+        <span class="legend-label">Absent</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-dot late"></div>
+        <span class="legend-label">Late</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-dot sunday"></div>
+        <span class="legend-label">Sunday (Holiday)</span>
+    </div>
+</div>
+
 <!-- Attendance Grid -->
-<form method="post" id="attendanceForm">
-    {% csrf_token %}
-    <input type="hidden" name="date" value="{{ selected_date|date:'Y-m-d' }}">
-    
-    <div class="attendance-grid-container">
-        <table class="attendance-table">
-            <thead>
-                <tr>
-                    <th style="width: 60px;">
-                        <input type="checkbox" class="attendance-checkbox" id="selectAll" onchange="toggleSelectAll()">
-                    </th>
-                    <th>Student</th>
-                    <th>Roll Number</th>
-                    <th>Batch</th>
-                    <th style="width: 100px;">Attendance</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for student in students %}
-                <tr>
-                    <td data-label="">
-                        <input type="checkbox" name="student_{{ student.id }}" class="attendance-checkbox student-checkbox" value="present" checked onchange="updateCounts()">
-                    </td>
-                    <td data-label="Student">
-                        <div class="student-info-cell">
-                            <div class="student-avatar-small">
-                                {{ student.full_name|first|upper }}
-                            </div>
-                            <div>
-                                <div class="student-name-cell">{{ student.full_name }}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td data-label="Roll No">{{ student.roll_number }}</td>
-                    <td data-label="Batch">{{ student.batch.name }}</td>
-                    <td data-label="Status">
-                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                            <input type="checkbox" name="student_{{ student.id }}" class="attendance-checkbox student-checkbox" value="present" checked onchange="updateCounts()" style="width: 24px; height: 24px;">
-                            <span style="color: rgba(255,255,255,0.8); font-size: 0.85rem; font-weight: 600;">Present</span>
-                        </label>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="empty-state">
-                        <i class="fas fa-user-slash"></i>
-                        <p>No students found for the selected filters</p>
-                    </td>
-                </tr>
+{% if students %}
+<form id="attendanceForm" class="attendance-table-container">
+    <table class="monthly-attendance-table">
+        <thead>
+            <tr>
+                <th class="index-col" style="min-width: 60px; width: 60px; text-align: center;">#</th>
+                <th class="name-col" style="min-width: 200px;">Student Name</th>
+                <th class="roll-col" style="min-width: 120px;">Roll Number</th>
+                {% for date_info in date_list %}
+                <th class="date-col {% if date_info.is_sunday %}sunday-col{% endif %}">
+                    {% if date_info.is_sunday %}
+                    <span class="sunday-indicator">{{ date_info.day }}</span>
+                    {% else %}
+                    {{ date_info.day }}
+                    {% endif %}
+                    <div style="font-size: 0.6rem; margin-top: 2px; opacity: 0.7;">{{ date_info.weekday }}</div>
+                </th>
                 {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    
-    <!-- Submit Section -->
-    <div class="submit-section">
-        <div class="attendance-summary">
-            <div class="summary-item present">
-                <i class="fas fa-check-circle"></i>
-                <span>Present: <strong id="presentCount2">0</strong></span>
-            </div>
-            <div class="summary-item absent">
-                <i class="fas fa-times-circle"></i>
-                <span>Absent: <strong id="absentCount2">0</strong></span>
-            </div>
-        </div>
-        <div class="page-actions">
-            <button type="submit" class="btn-glass btn-glass-success">
-                <i class="fas fa-save"></i>
-                Save Attendance
-            </button>
-        </div>
-    </div>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td style="text-align: center; font-weight: 800; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">{{ forloop.counter }}</td>
+                <td class="student-cell">
+                    <div class="student-info">
+                        <div class="student-avatar">{{ student.full_name|first|upper }}</div>
+                        <div>
+                            <div class="student-name">{{ student.full_name }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td style="text-align: center; font-weight: 600; color: rgba(255, 255, 255, 0.8); font-size: 0.85rem;">{{ student.roll_number }}</td>
+                {% for date_info in date_list %}
+                <td>
+                    <div class="attendance-cell empty"
+                         data-student="{{ student.id }}"
+                         data-date="{{ date_info.date|date:'Y-m-d' }}"
+                         data-status="empty"
+                         {% if date_info.is_sunday or date_info.is_future %}
+                         class="attendance-cell {% if date_info.is_sunday %}sunday{% elif date_info.is_future %}future{% endif %}"
+                         {% endif %}
+                         onclick="{% if not date_info.is_sunday and not date_info.is_future %}toggleStatus(this){% endif %}">
+                        {% if date_info.is_sunday %}
+                        <i class="fas fa-ban" style="font-size: 0.6rem;"></i>
+                        {% elif date_info.is_future %}
+                        <i class="fas fa-clock" style="font-size: 0.6rem;"></i>
+                        {% else %}
+                        <!-- Empty Circle -->
+                        {% endif %}
+                    </div>
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </form>
 
+<!-- Save Section -->
+<div class="save-section">
+    <div class="save-stats">
+        <div class="stat-item">
+            <i class="fas fa-users" style="color: rgba(255, 255, 255, 0.8);"></i>
+            <span>Students: <strong>{{ students|length }}</strong></span>
+        </div>
+        <div class="stat-item">
+            <i class="fas fa-calendar-day" style="color: rgba(255, 255, 255, 0.8);"></i>
+            <span>Days: <strong>{{ date_list|length }}</strong></span>
+        </div>
+    </div>
+    <button type="button" class="btn-save" onclick="saveAttendance()">
+        <i class="fas fa-save"></i>
+        Save Attendance
+    </button>
+</div>
+{% else %}
+<div class="empty-state">
+    <i class="fas fa-user-slash"></i>
+    <h3>No Students Found</h3>
+    <p>Please select a batch to view students and mark attendance</p>
+</div>
+{% endif %}
+
 <script>
-    function updateCounts() {
-        const presentCheckboxes = document.querySelectorAll('.student-checkbox:checked');
-        const totalCheckboxes = document.querySelectorAll('.student-checkbox');
-        
-        const presentCount = presentCheckboxes.length;
-        const absentCount = totalCheckboxes.length - presentCount;
-        
-        document.getElementById('presentCount').textContent = presentCount;
-        document.getElementById('absentCount').textContent = absentCount;
-        document.getElementById('presentCount2').textContent = presentCount;
-        document.getElementById('absentCount2').textContent = absentCount;
+    // Toggle attendance status: Empty -> Present -> Absent -> Late -> Empty
+    function toggleStatus(cell) {
+        const currentStatus = cell.dataset.status;
+        let newStatus = 'present';
+
+        if (currentStatus === 'empty') {
+            newStatus = 'present';
+        } else if (currentStatus === 'present') {
+            newStatus = 'absent';
+        } else if (currentStatus === 'absent') {
+            newStatus = 'late';
+        } else if (currentStatus === 'late') {
+            newStatus = 'empty';
+        }
+
+        cell.dataset.status = newStatus;
+        cell.className = 'attendance-cell ' + newStatus;
+
+        // Update cell content
+        if (newStatus === 'empty') {
+            cell.innerHTML = '';
+        } else if (newStatus === 'present') {
+            cell.innerHTML = 'P';
+        } else if (newStatus === 'absent') {
+            cell.innerHTML = 'A';
+        } else if (newStatus === 'late') {
+            cell.innerHTML = 'L';
+        }
     }
-    
-    function toggleSelectAll() {
-        const selectAll = document.getElementById('selectAll');
-        const checkboxes = document.querySelectorAll('.student-checkbox');
-        
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = selectAll.checked;
+
+    // Save attendance
+    async function saveAttendance() {
+        const cells = document.querySelectorAll('.attendance-cell[data-student]');
+        const attendanceData = {};
+
+        // Group by student
+        cells.forEach(cell => {
+            const studentId = cell.dataset.student;
+            const date = cell.dataset.date;
+            const status = cell.dataset.status;
+
+            if (!attendanceData[studentId]) {
+                attendanceData[studentId] = {};
+            }
+            attendanceData[studentId][date] = status;
         });
-        
-        updateCounts();
+
+        // Build payload
+        const payload = {
+            batch_id: '{{ selected_batch_id }}',
+            month: '{{ selected_month }}',
+            data: Object.keys(attendanceData).map(studentId => ({
+                student_id: parseInt(studentId),
+                dates: attendanceData[studentId]
+            }))
+        };
+
+        // Show loading
+        const saveBtn = document.querySelector('.btn-save');
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        saveBtn.disabled = true;
+
+        try {
+            const response = await fetch('/api/attendance/monthly/save/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('✅ Attendance saved successfully!\n' + result.message);
+            } else {
+                alert('❌ Error: ' + (result.error || 'Unknown error'));
+            }
+        } catch (error) {
+            alert('❌ Error saving attendance: ' + error.message);
+        } finally {
+            saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Attendance';
+            saveBtn.disabled = false;
+        }
     }
-    
-    // Initialize counts on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        updateCounts();
-    });
 </script>
 {% endblock %}
