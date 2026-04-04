@@ -333,6 +333,11 @@
         border-radius: 50%;
     }
 
+    .legend-dot.empty {
+        background: transparent;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
     .legend-dot.present {
         background: radial-gradient(circle, rgba(16, 185, 129, 0.9) 0%, rgba(16, 185, 129, 0.6) 100%);
         border: 2px solid rgba(16, 185, 129, 1);
@@ -501,6 +506,10 @@
 <!-- Legend -->
 <div class="legend">
     <div class="legend-item">
+        <div class="legend-dot empty"></div>
+        <span class="legend-label">Not Marked</span>
+    </div>
+    <div class="legend-item">
         <div class="legend-dot present"></div>
         <span class="legend-label">Present</span>
     </div>
@@ -639,11 +648,16 @@
         const cells = document.querySelectorAll('.attendance-cell[data-student]');
         const attendanceData = {};
 
-        // Group by student
+        // Group by student (only include non-empty cells)
         cells.forEach(cell => {
             const studentId = cell.dataset.student;
             const date = cell.dataset.date;
             const status = cell.dataset.status;
+
+            // Skip empty cells
+            if (status === 'empty' || status === 'sunday' || status === 'future') {
+                return;
+            }
 
             if (!attendanceData[studentId]) {
                 attendanceData[studentId] = {};
