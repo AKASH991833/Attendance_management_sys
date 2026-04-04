@@ -1,0 +1,961 @@
+{% extends 'base.html' %}
+
+{% block title %}Super Admin Dashboard - EduTrack Pro{% endblock %}
+
+{% block breadcrumb-current %}Super Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ===================================
+       SUPER ADMIN DASHBOARD - PURE GLASSMORPHISM
+       Fully Transparent Glass Effect
+       =================================== */
+
+    /* Use global glassmorphism background */
+    .dashboard-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: 
+            linear-gradient(135deg, rgba(15, 23, 42, 0.4) 0%, rgba(30, 27, 75, 0.35) 50%, rgba(88, 28, 135, 0.4) 100%);
+        overflow: hidden;
+    }
+
+    .dashboard-bg::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('/static/images/bg-dashboard.jpg') center center/cover no-repeat fixed;
+        opacity: 0.6;
+    }
+
+    .dashboard-bg::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+        animation: bgFade 10s ease-in-out infinite;
+    }
+
+    @keyframes bgFade {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 0.8; }
+    }
+
+    /* Remove colored bubbles */
+    .floating-bubble {
+        display: none;
+    }
+
+    /* Override colored backgrounds with transparent glass */
+    .stat-card, .quick-card, .activity-item, .glass-panel {
+        background: rgba(255, 255, 255, 0.03) !important;
+        backdrop-filter: blur(20px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    }
+
+    /* Welcome Header - Transparent Glass */
+    .welcome-header {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(25px) saturate(200%);
+        -webkit-backdrop-filter: blur(25px) saturate(200%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 28px;
+        padding: clamp(1.5rem, 4vw, 2.5rem);
+        margin-bottom: 2rem;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .welcome-header:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+    }
+
+    .welcome-content h1 {
+        font-size: clamp(1.8rem, 4vw, 2.5rem);
+        font-weight: 800;
+        color: rgba(255, 255, 255, 0.98);
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .welcome-content p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: clamp(0.95rem, 2vw, 1.1rem);
+        margin: 0;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(25px) saturate(200%);
+        -webkit-backdrop-filter: blur(25px) saturate(200%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        padding: clamp(1.5rem, 3vw, 2rem);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card:hover {
+        background: rgba(255, 255, 255, 0.06);
+        transform: translateY(-8px);
+        border-color: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .stat-icon {
+        width: 55px;
+        height: 55px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover .stat-icon {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    .stat-icon-wrapper {
+        width: 55px;
+        height: 55px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover .stat-icon-wrapper {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    .stat-card-body {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-number {
+        font-size: clamp(2rem, 4vw, 2.8rem);
+        font-weight: 800;
+        color: rgba(255, 255, 255, 0.98);
+        margin: 0;
+        line-height: 1;
+    }
+
+    .stat-label {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: clamp(0.85rem, 2vw, 0.95rem);
+        font-weight: 600;
+        margin: 0.75rem 0 0 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .gradient-primary { --card-color: rgba(99, 102, 241, 0.15); }
+    .gradient-success { --card-color: rgba(16, 185, 129, 0.15); }
+    .gradient-info { --card-color: rgba(59, 130, 246, 0.15); }
+    .gradient-warning { --card-color: rgba(245, 158, 11, 0.15); }
+
+    .stat-card.gradient-primary:hover { border-color: rgba(99, 102, 241, 0.3); }
+    .stat-card.gradient-success:hover { border-color: rgba(16, 185, 129, 0.3); }
+    .stat-card.gradient-info:hover { border-color: rgba(59, 130, 246, 0.3); }
+    .stat-card.gradient-warning:hover { border-color: rgba(245, 158, 11, 0.3); }
+
+    .stat-footer {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .stat-change {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .stat-change.positive {
+        color: rgba(16, 185, 129, 0.9);
+    }
+
+    /* Quick Cards & Actions */
+    .quick-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+    }
+
+    .quick-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 1.5rem;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .quick-card:hover {
+        background: rgba(255, 255, 255, 0.07);
+        border-color: rgba(255, 255, 255, 0.15);
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .quick-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.3rem;
+        color: rgba(255, 255, 255, 0.9);
+        transition: all 0.3s ease;
+    }
+
+    .quick-card:hover .quick-icon {
+        transform: scale(1.1);
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    .quick-label {
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    /* Buttons */
+    .btn-glass {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.875rem 1.5rem;
+        border-radius: 16px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.9);
+        cursor: pointer;
+    }
+
+    .btn-glass:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-3px);
+    }
+
+    /* Content Grid */
+    .content-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .dashboard-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .dashboard-content > div {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* Glass Panel */
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(25px) saturate(200%);
+        -webkit-backdrop-filter: blur(25px) saturate(200%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        overflow: hidden;
+    }
+
+    .panel-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .panel-header h3 {
+        color: rgba(255, 255, 255, 0.95);
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin: 0;
+    }
+
+    .panel-body {
+        padding: 1.5rem;
+    }
+
+    /* Card Header */
+    .card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .card-title {
+        color: rgba(255, 255, 255, 0.95);
+        font-weight: 700;
+        font-size: 1.15rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .btn-glass-sm {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.85rem;
+    }
+
+    /* Teacher List */
+    .teacher-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .teacher-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        transition: all 0.3s ease;
+    }
+
+    .teacher-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+        transform: translateX(5px);
+    }
+
+    .teacher-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 700;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .teacher-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .teacher-name {
+        color: rgba(255, 255, 255, 0.95);
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .teacher-meta {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .teacher-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .teacher-status {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .teacher-status.active {
+        background: rgba(16, 185, 129, 0.15);
+        color: rgba(52, 211, 153, 0.9);
+    }
+
+    .teacher-status.inactive {
+        background: rgba(239, 68, 68, 0.15);
+        color: rgba(248, 113, 113, 0.9);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state p {
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    /* Student Row */
+    .student-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.875rem;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .student-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    .student-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 600;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .student-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .student-name {
+        color: rgba(255, 255, 255, 0.95);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .student-batch {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.8rem;
+    }
+
+    /* Quick Actions Grid */
+    .quick-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+    }
+
+    /* Table Styles */
+    .glass-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .glass-table th {
+        color: rgba(255, 255, 255, 0.7);
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .glass-table td {
+        color: rgba(255, 255, 255, 0.9);
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .glass-table tr:hover td {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    /* Activity Items */
+    .activity-item {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .activity-item:last-child { margin-bottom: 0; }
+
+    .activity-item:hover {
+        background: rgba(255, 255, 255, 0.06);
+        transform: translateX(5px);
+    }
+
+    .activity-title {
+        color: rgba(255, 255, 255, 0.95);
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .activity-time {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.8rem;
+        margin: 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .content-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+        .welcome-header { flex-direction: column; text-align: center; }
+        .welcome-content h1 { justify-content: center; }
+        .welcome-actions { justify-content: center; }
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 480px) {
+        .stats-grid { grid-template-columns: 1fr; }
+        .quick-cards-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Animated Background -->
+<div class="dashboard-bg">
+    <div class="floating-bubble bubble-1"></div>
+    <div class="floating-bubble bubble-2"></div>
+    <div class="floating-bubble bubble-3"></div>
+    <div class="floating-bubble bubble-4"></div>
+    <div class="floating-bubble bubble-5"></div>
+    <div class="floating-bubble bubble-6"></div>
+</div>
+
+<!-- Welcome Header -->
+<div class="welcome-header">
+    <div class="welcome-content">
+        <h1>
+            <i class="fas fa-shield-alt"></i>
+            Welcome back, {{ user.teacher.full_name|default:user.username }}!
+        </h1>
+        <p>Manage your institution with powerful admin tools</p>
+    </div>
+    <div class="welcome-actions">
+        <a href="{% url 'super_admin:teacher_create' %}" class="btn-glass btn-glass-primary">
+            <i class="fas fa-user-plus"></i>
+            New Teacher
+        </a>
+        <a href="{% url 'super_admin:admin_profile' %}" class="btn-glass">
+            <i class="fas fa-user-circle"></i>
+            My Profile
+        </a>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="stats-grid">
+    <!-- Total Teachers -->
+    <div class="stat-card gradient-primary">
+        <div class="stat-card-body">
+            <div class="stat-icon-wrapper">
+                <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+            <div class="stat-details">
+                <h3 class="stat-number">{{ total_teachers }}</h3>
+                <p class="stat-label">Total Teachers</p>
+            </div>
+        </div>
+        <div class="stat-footer">
+            <span class="stat-change positive">
+                <i class="fas fa-check-circle"></i> {{ active_teachers }} active, {{ inactive_teachers }} inactive
+            </span>
+        </div>
+    </div>
+
+    <!-- Total Students -->
+    <div class="stat-card gradient-success">
+        <div class="stat-card-body">
+            <div class="stat-icon-wrapper">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="stat-details">
+                <h3 class="stat-number">{{ total_students }}</h3>
+                <p class="stat-label">Total Students</p>
+            </div>
+        </div>
+        <div class="stat-footer">
+            <span class="stat-change positive">
+                <i class="fas fa-graduation-cap"></i> All enrolled students
+            </span>
+        </div>
+    </div>
+
+    <!-- Total Batches -->
+    <div class="stat-card gradient-info">
+        <div class="stat-card-body">
+            <div class="stat-icon-wrapper">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-details">
+                <h3 class="stat-number">{{ total_batches }}</h3>
+                <p class="stat-label">Total Batches</p>
+            </div>
+        </div>
+        <div class="stat-footer">
+            <span class="stat-change">
+                <i class="fas fa-layer-group"></i> Active batches
+            </span>
+        </div>
+    </div>
+
+    <!-- Today's Attendance -->
+    <div class="stat-card gradient-warning">
+        <div class="stat-card-body">
+            <div class="stat-icon-wrapper">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-details">
+                <h3 class="stat-number">{{ student_attendance_today }}</h3>
+                <p class="stat-label">Student Attendance Today</p>
+            </div>
+        </div>
+        <div class="stat-footer">
+            <span class="stat-change">
+                <i class="fas fa-user-check"></i> {{ teacher_attendance_today }} teachers present
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Content -->
+<div class="dashboard-content">
+    <!-- Left Column -->
+    <div>
+        <!-- Recent Teachers -->
+        <div class="glass-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    Recent Teachers
+                </h3>
+                <a href="{% url 'super_admin:teacher_list' %}" class="btn-glass btn-glass-sm">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            {% if recent_teachers %}
+            <div class="teacher-list">
+                {% for teacher in recent_teachers %}
+                <div class="teacher-item">
+                    <div class="teacher-avatar">
+                        {{ teacher.full_name|first|upper }}
+                    </div>
+                    <div class="teacher-info">
+                        <div class="teacher-name">{{ teacher.full_name }}</div>
+                        <div class="teacher-meta">
+                            <span><i class="fas fa-briefcase"></i> {{ teacher.department|default:"General" }}</span>
+                            <span><i class="fas fa-envelope"></i> {{ teacher.user.email }}</span>
+                        </div>
+                    </div>
+                    <div class="teacher-status {% if teacher.user.is_active %}active{% else %}inactive{% endif %}">
+                        <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
+                        {% if teacher.user.is_active %}Active{% else %}Inactive{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-chalkboard-teacher"></i>
+                <p>No teachers found</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Top Teachers by Students -->
+        <div class="glass-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-trophy"></i>
+                    Top Teachers
+                </h3>
+            </div>
+
+            {% if top_teachers %}
+            <div class="teacher-list">
+                {% for teacher in top_teachers %}
+                {% with rank=forloop.counter|add:4 %}
+                {% if rank|divisibleby:5 %}
+                <div class="teacher-item teacher-rank-5">
+                    <div class="teacher-avatar avatar-rank-5">
+                        {% if teacher.profile_picture %}
+                        <img src="{{ teacher.profile_picture.url }}" alt="{{ teacher.full_name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        {% else %}
+                        {{ teacher.full_name|first|upper }}
+                        {% endif %}
+                    </div>
+                {% elif forloop.counter|divisibleby:4 %}
+                <div class="teacher-item teacher-rank-4">
+                    <div class="teacher-avatar avatar-rank-4">
+                        {% if teacher.profile_picture %}
+                        <img src="{{ teacher.profile_picture.url }}" alt="{{ teacher.full_name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        {% else %}
+                        {{ teacher.full_name|first|upper }}
+                        {% endif %}
+                    </div>
+                {% elif forloop.counter|divisibleby:3 %}
+                <div class="teacher-item teacher-rank-3">
+                    <div class="teacher-avatar avatar-rank-3">
+                        {% if teacher.profile_picture %}
+                        <img src="{{ teacher.profile_picture.url }}" alt="{{ teacher.full_name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        {% else %}
+                        {{ teacher.full_name|first|upper }}
+                        {% endif %}
+                    </div>
+                {% elif forloop.counter|divisibleby:2 %}
+                <div class="teacher-item teacher-rank-2">
+                    <div class="teacher-avatar avatar-rank-2">
+                        {% if teacher.profile_picture %}
+                        <img src="{{ teacher.profile_picture.url }}" alt="{{ teacher.full_name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        {% else %}
+                        {{ teacher.full_name|first|upper }}
+                        {% endif %}
+                    </div>
+                {% else %}
+                <div class="teacher-item teacher-rank-1">
+                    <div class="teacher-avatar avatar-rank-1">
+                        {% if teacher.profile_picture %}
+                        <img src="{{ teacher.profile_picture.url }}" alt="{{ teacher.full_name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        {% else %}
+                        {{ teacher.full_name|first|upper }}
+                        {% endif %}
+                    </div>
+                {% endif %}
+                    <div class="teacher-info">
+                        <div class="teacher-name">{{ teacher.full_name }}</div>
+                        <div class="teacher-meta">
+                            <span><i class="fas fa-user-graduate"></i> {{ teacher.student_count }} students</span>
+                            <span><i class="fas fa-layer-group"></i> {{ teacher.batch_count }} batches</span>
+                        </div>
+                    </div>
+                    <div style="color: rgba(255,255,255,0.5); font-weight: 900; font-size: 1.5rem;">#{{ forloop.counter }}</div>
+                </div>
+                {% endwith %}
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-trophy"></i>
+                <p>No data available</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Right Column -->
+    <div>
+        <!-- Quick Actions -->
+        <div class="glass-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-bolt"></i>
+                    Quick Actions
+                </h3>
+            </div>
+
+            <div class="quick-actions-grid">
+                <a href="{% url 'super_admin:teacher_create' %}" class="quick-action-card primary">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div>
+                        <h4 class="quick-action-label">Add Teacher</h4>
+                        <p class="quick-action-desc">Create new account</p>
+                    </div>
+                </a>
+
+                <a href="{% url 'super_admin:all_students' %}" class="quick-action-card success">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div>
+                        <h4 class="quick-action-label">All Students</h4>
+                        <p class="quick-action-desc">View all students</p>
+                    </div>
+                </a>
+
+                <a href="{% url 'super_admin:all_batches' %}" class="quick-action-card info">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <h4 class="quick-action-label">All Batches</h4>
+                        <p class="quick-action-desc">Manage batches</p>
+                    </div>
+                </a>
+
+                <a href="{% url 'super_admin:system_logs' %}" class="quick-action-card warning">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div>
+                        <h4 class="quick-action-label">System Logs</h4>
+                        <p class="quick-action-desc">View activity logs</p>
+                    </div>
+                </a>
+
+                <a href="{% url 'super_admin:admin_profile' %}" class="quick-action-card pink">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div>
+                        <h4 class="quick-action-label">My Profile</h4>
+                        <p class="quick-action-desc">Manage settings</p>
+                    </div>
+                </a>
+
+                <a href="/dashboard/" class="quick-action-card danger">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div>
+                        <h4 class="quick-action-label">My Dashboard</h4>
+                        <p class="quick-action-desc">Go to dashboard</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="glass-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-history"></i>
+                    Recent Activity
+                </h3>
+                <a href="{% url 'super_admin:system_logs' %}" class="btn-glass btn-glass-sm">
+                    View All
+                </a>
+            </div>
+
+            <div class="activity-feed">
+                {% if recent_teachers %}
+                    {% for teacher in recent_teachers|slice:":5" %}
+                    <div class="activity-item success">
+                        <div class="activity-icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="activity-content">
+                            <p class="activity-title">New teacher added: {{ teacher.full_name }}</p>
+                            <p class="activity-time">{{ teacher.created_at|timesince }} ago</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-history"></i>
+                    <p>No recent activity</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

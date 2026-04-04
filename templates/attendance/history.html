@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance History - EduTrack Pro{% endblock %}
+
+{% block breadcrumb_current %}Attendance History{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-history"></i> Attendance History</h1>
+    <p>View and filter past attendance records</p>
+</div>
+
+<!-- Filters -->
+<div class="filters-bar">
+    <form method="get" class="filters-form">
+        <div class="filter-group">
+            <label>Batch</label>
+            {{ form.batch }}
+        </div>
+        <div class="filter-group">
+            <label>From Date</label>
+            {{ form.from_date }}
+        </div>
+        <div class="filter-group">
+            <label>To Date</label>
+            {{ form.to_date }}
+        </div>
+        <div class="filter-group">
+            <label>Student Name</label>
+            {{ form.student_name }}
+        </div>
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-filter"></i> Filter
+            </button>
+            <a href="/attendance/history/" class="btn btn-secondary">
+                <i class="fas fa-redo"></i> Reset
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- History Table -->
+<div class="table-card">
+    {% if page_obj %}
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Batch</th>
+                    <th>Present</th>
+                    <th>Absent</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in page_obj %}
+                <tr>
+                    <td>{{ record.date|date:"M d, Y" }}</td>
+                    <td>{{ record.batch__name }}</td>
+                    <td><span class="badge badge-success">{{ record.present_count }}</span></td>
+                    <td><span class="badge badge-danger">{{ record.absent_count }}</span></td>
+                    <td>{{ record.present_count|add:record.absent_count }}</td>
+                    <td>
+                        <a href="/attendance/history/?batch={{ record.batch }}&from_date={{ record.date }}&to_date={{ record.date }}" class="btn btn-sm btn-secondary">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page=1" class="btn btn-sm btn-secondary">First</a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-sm btn-secondary">Previous</a>
+        {% endif %}
+        <span class="page-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-sm btn-secondary">Next</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-sm btn-secondary">Last</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-clipboard-list"></i>
+        <h3>No Attendance Records</h3>
+        <p>No attendance records found for the selected filters</p>
+        <a href="/attendance/mark/" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Mark Attendance
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Teacher - EduTrack Pro{% endblock %}
+
+{% block breadcrumb_current %}Delete Teacher{% endblock %}
+
+{% block content %}
+<div class="delete-confirmation-container">
+    <div class="delete-header">
+        <div class="delete-icon">
+            <i class="fas fa-trash-alt"></i>
+        </div>
+        <h1>Delete Teacher Account</h1>
+        <p>This will permanently remove the teacher's access to the system</p>
+    </div>
+
+    <div class="alert alert-danger" style="margin-bottom: 20px;">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div>
+            <strong>Warning!</strong> This action will deactivate the teacher's account. All their data (students, batches, attendance records) will remain in the system but will be marked as inactive.
+        </div>
+    </div>
+
+    <div class="teacher-info-card">
+        <h3>Teacher Details:</h3>
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Name:</span>
+                <span class="info-value">{{ teacher.full_name|default:teacher.user.username }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Username:</span>
+                <span class="info-value">{{ teacher.user.username }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Email:</span>
+                <span class="info-value">{{ teacher.user.email }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Department:</span>
+                <span class="info-value">{{ teacher.department|default:"Not set" }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Students:</span>
+                <span class="info-value">{{ teacher.students.count }} students</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Batches:</span>
+                <span class="info-value">{{ teacher.batches.count }} batches</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Super Admin:</span>
+                <span class="info-value">{% if teacher.is_super_admin %}<span class="badge badge-warning">Yes</span>{% else %}<span class="badge badge-secondary">No</span>{% endif %}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Current Status:</span>
+                <span class="info-value">{% if teacher.user.is_active %}<span class="badge badge-success">Active</span>{% else %}<span class="badge badge-danger">Inactive</span>{% endif %}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="delete-actions">
+        <form method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn-delete-confirm">
+                <i class="fas fa-trash"></i> Yes, Delete This Teacher
+            </button>
+        </form>
+        <a href="{% url 'super_admin:teacher_list' %}" class="btn-cancel-delete">
+            <i class="fas fa-arrow-left"></i> Cancel and Go Back
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.delete-confirmation-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.delete-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.delete-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.3);
+}
+
+.delete-icon i {
+    font-size: 48px;
+    color: white;
+}
+
+.delete-header h1 {
+    font-size: 2rem;
+    color: #1e293b;
+    margin: 0 0 8px 0;
+}
+
+.delete-header p {
+    color: #64748b;
+    margin: 0;
+}
+
+.teacher-info-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.teacher-info-card h3 {
+    margin: 0 0 20px 0;
+    color: #1e293b;
+    font-size: 1.1rem;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.info-value {
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.delete-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-delete-confirm {
+    padding: 16px 32px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-delete-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+}
+
+.btn-cancel-delete {
+    padding: 16px 32px;
+    background: #f1f5f9;
+    color: #64748b;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-cancel-delete:hover {
+    background: #e2e8f0;
+    color: #475569;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .delete-actions {
+        flex-direction: column;
+    }
+    
+    .btn-delete-confirm,
+    .btn-cancel-delete {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}

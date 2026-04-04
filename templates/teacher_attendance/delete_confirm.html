@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Attendance - EduTrack Pro{% endblock %}
+
+{% block breadcrumb_current %}Delete Attendance{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-trash-alt"></i> Delete Attendance Record</h1>
+    <p>Confirm deletion of attendance record</p>
+</div>
+
+<div class="form-card">
+    <div class="alert alert-danger" style="margin-bottom: 20px;">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div>
+            <strong>Warning!</strong> This action cannot be undone.
+        </div>
+    </div>
+    
+    <div class="info-box" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <h3>Record Details:</h3>
+        <table style="width: 100%; margin-top: 15px;">
+            <tr>
+                <td><strong>Teacher:</strong></td>
+                <td>{{ attendance.teacher.full_name|default:attendance.teacher.user.username }}</td>
+            </tr>
+            <tr>
+                <td><strong>Date:</strong></td>
+                <td>{{ attendance.date|date:"d M Y, l" }}</td>
+            </tr>
+            <tr>
+                <td><strong>Status:</strong></td>
+                <td>
+                    <span class="badge badge-{% if attendance.is_present %}success{% elif attendance.is_absent %}danger{% else %}warning{% endif %}">
+                        {{ attendance.get_status_display }}
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Notes:</strong></td>
+                <td>{{ attendance.notes|default:"No notes" }}</td>
+            </tr>
+            <tr>
+                <td><strong>Marked At:</strong></td>
+                <td>{{ attendance.marked_at|date:"d M Y, H:i" }}</td>
+            </tr>
+        </table>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-danger btn-lg">
+                <i class="fas fa-trash"></i> Yes, Delete This Record
+            </button>
+            <a href="{% url 'teacher_attendance:attendance_history' %}" class="btn btn-secondary btn-lg">
+                <i class="fas fa-arrow-left"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+
+.badge-success {
+    background-color: #10b981;
+    color: white;
+}
+
+.badge-danger {
+    background-color: #ef4444;
+    color: white;
+}
+
+.badge-warning {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.info-box table tr td:first-child {
+    font-weight: 600;
+    width: 150px;
+    padding: 8px 0;
+}
+</style>
+{% endblock %}

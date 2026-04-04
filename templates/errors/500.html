@@ -1,0 +1,56 @@
+{% extends 'base_auth.html' %}
+
+{% block title %}Server Error - EduTrack Pro{% endblock %}
+
+{% block auth_card %}
+<div class="error-page">
+    <div class="error-code">500</div>
+    <div class="error-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <h2>Something Went Wrong</h2>
+    <p>We're experiencing technical difficulties. Please try again later.</p>
+    <a href="/dashboard/" class="btn btn-primary">
+        <i class="fas fa-home"></i> Go to Dashboard
+    </a>
+    <p class="error-contact">
+        <small>If the problem persists, please contact support.</small>
+    </p>
+</div>
+
+<style>
+.error-page {
+    text-align: center;
+    padding: 2rem;
+}
+
+.error-code {
+    font-size: 6rem;
+    font-weight: 700;
+    color: var(--danger);
+    line-height: 1;
+    margin-bottom: 1rem;
+}
+
+.error-icon {
+    font-size: 3rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.error-page h2 {
+    margin-bottom: 0.5rem;
+}
+
+.error-page p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.error-contact {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+}
+</style>
+{% endblock %}

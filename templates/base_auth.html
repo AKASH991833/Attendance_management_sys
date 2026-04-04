@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="description" content="EduTrack Pro - Smart Multi-Teacher Attendance & Communication System">
+
+    <title>{% block title %}EduTrack Pro{% endblock %}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Glassmorphism CSS -->
+    <link rel="stylesheet" href="/static/css/glassmorphism.css">
+    <link rel="stylesheet" href="/static/css/main.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="auth-body">
+    <!-- Animated Background -->
+    <div class="glass-bg-pattern">
+        <div class="glass-orb glass-orb-1"></div>
+        <div class="glass-orb glass-orb-2"></div>
+        <div class="glass-orb glass-orb-3"></div>
+    </div>
+    
+    <div class="auth-container">
+        <div class="auth-brand">
+            <div class="brand-logo">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h1>EduTrack Pro</h1>
+            <p>Smart Attendance & Communication System</p>
+        </div>
+
+        {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="auth-card">
+            {% block auth_card %}{% endblock %}
+        </div>
+
+        <div class="auth-footer">
+            <p>&copy; {% now "Y" %} EduTrack Pro. All rights reserved.</p>
+        </div>
+    </div>
+
+    <!-- Main JS -->
+    <script src="/static/js/main.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

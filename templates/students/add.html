@@ -1,0 +1,550 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Student - EduTrack Pro{% endblock %}
+
+{% block breadcrumb_current %}Add Student{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Modern Add Student Form */
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+    }
+
+    .form-header h1 {
+        margin: 0 0 0.5rem 0;
+        font-size: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .form-header p {
+        margin: 0;
+        opacity: 0.95;
+    }
+
+    .form-container {
+        background: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .section-title i {
+        color: #667eea;
+        font-size: 1.3rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-group label .required {
+        color: #e53e3e;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 0.875rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        outline: none;
+        font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-group input:hover,
+    .form-group select:hover {
+        border-color: #cbd5e0;
+    }
+
+    .form-group .help-text {
+        font-size: 0.85rem;
+        color: #718096;
+        margin-top: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .form-group .help-text i {
+        font-size: 0.75rem;
+    }
+
+    .error-text {
+        color: #e53e3e;
+        font-size: 0.85rem;
+        margin-top: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid #e2e8f0;
+    }
+
+    .btn-modern {
+        padding: 0.875rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .btn-primary-modern {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary-modern {
+        background: #f7fafc;
+        color: #4a5568;
+        border: 2px solid #e2e8f0;
+    }
+
+    .btn-secondary-modern:hover {
+        background: #edf2f7;
+        transform: translateY(-2px);
+    }
+
+    .preview-box {
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+        border: 2px dashed #cbd5e0;
+    }
+
+    .preview-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #718096;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .preview-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #667eea;
+        padding: 0.75rem 1rem;
+        background: white;
+        border-radius: 8px;
+        display: inline-block;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Info Cards */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 1.25rem;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+    }
+
+    .info-card-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .info-card-text {
+        flex: 1;
+    }
+
+    .info-card-title {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        margin-bottom: 0.25rem;
+    }
+
+    .info-card-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .form-header {
+            padding: 1.5rem;
+        }
+
+        .form-header h1 {
+            font-size: 1.5rem;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .form-container {
+            padding: 1.5rem;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .btn-modern {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* Animations */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-container {
+        animation: slideIn 0.5s ease forwards;
+    }
+
+    .form-section {
+        animation: slideIn 0.5s ease forwards;
+        animation-delay: 0.1s;
+        opacity: 0;
+    }
+
+    .form-section:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .form-section:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Form Header -->
+<div class="form-header">
+    <h1>
+        <i class="fas fa-user-plus"></i>
+        Add New Student
+    </h1>
+    <p>Fill in the details below to add a new student to your batch</p>
+</div>
+
+<!-- Info Cards -->
+<div class="info-grid">
+    <div class="info-card">
+        <div class="info-card-icon">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="info-card-text">
+            <div class="info-card-title">Total Students</div>
+            <div class="info-card-value">{{ total_students|default:0 }}</div>
+        </div>
+    </div>
+    <div class="info-card">
+        <div class="info-card-icon">
+            <i class="fas fa-layer-group"></i>
+        </div>
+        <div class="info-card-text">
+            <div class="info-card-title">Available Batches</div>
+            <div class="info-card-value">{{ batches.count|default:0 }}</div>
+        </div>
+    </div>
+    <div class="info-card">
+        <div class="info-card-icon">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <div class="info-card-text">
+            <div class="info-card-title">Semesters</div>
+            <div class="info-card-value">6</div>
+        </div>
+    </div>
+</div>
+
+<!-- Form Container -->
+<div class="form-container">
+    <form method="post" class="modern-form">
+        {% csrf_token %}
+
+        <!-- Personal Information -->
+        <div class="form-section">
+            <h2 class="section-title">
+                <i class="fas fa-user"></i>
+                Personal Information
+            </h2>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_full_name">
+                        <i class="fas fa-user"></i>
+                        Full Name
+                        <span class="required">*</span>
+                    </label>
+                    {{ form.full_name }}
+                    {% if form.full_name.errors %}
+                    <div class="error-text">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.full_name.errors.0 }}
+                    </div>
+                    {% endif %}
+                    {% if preview_roll and form.full_name.value %}
+                    <div class="help-text">
+                        <i class="fas fa-info-circle"></i>
+                        Roll number will be auto-generated
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_roll_number">
+                        <i class="fas fa-id-card"></i>
+                        Roll Number
+                        <span class="required">*</span>
+                    </label>
+                    {{ form.roll_number }}
+                    {% if form.roll_number.errors %}
+                    <div class="error-text">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.roll_number.errors.0 }}
+                    </div>
+                    {% endif %}
+                    <div class="help-text">
+                        <i class="fas fa-info-circle"></i>
+                        Unique identifier for the student
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_semester">
+                        <i class="fas fa-graduation-cap"></i>
+                        Semester
+                        <span class="required">*</span>
+                    </label>
+                    {{ form.semester }}
+                    {% if form.semester.errors %}
+                    <div class="error-text">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.semester.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_batch">
+                        <i class="fas fa-layer-group"></i>
+                        Batch
+                        <span class="required">*</span>
+                    </label>
+                    {{ form.batch }}
+                    {% if form.batch.errors %}
+                    <div class="error-text">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.batch.errors.0 }}
+                    </div>
+                    {% endif %}
+                    <div class="help-text">
+                        <i class="fas fa-info-circle"></i>
+                        Select the batch for this student
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="form-section">
+            <h2 class="section-title">
+                <i class="fas fa-address-book"></i>
+                Contact Information
+            </h2>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_contact_number">
+                        <i class="fas fa-phone"></i>
+                        Contact Number
+                    </label>
+                    {{ form.contact_number }}
+                    {% if form.contact_number.errors %}
+                    <div class="error-text">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.contact_number.errors.0 }}
+                    </div>
+                    {% endif %}
+                    <div class="help-text">
+                        <i class="fas fa-info-circle"></i>
+                        Student's phone number
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_email">
+                        <i class="fas fa-envelope"></i>
+                        Email Address
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                    <div class="error-text">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.email.errors.0 }}
+                    </div>
+                    {% endif %}
+                    <div class="help-text">
+                        <i class="fas fa-info-circle"></i>
+                        Student's email address
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="form-section">
+            <h2 class="section-title">
+                <i class="fas fa-info-circle"></i>
+                Additional Information
+            </h2>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_is_active">
+                        <i class="fas fa-toggle-on"></i>
+                        Active Status
+                    </label>
+                    {{ form.is_active }}
+                    {% if form.is_active.errors %}
+                    <div class="error-text">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.is_active.errors.0 }}
+                    </div>
+                    {% endif %}
+                    <div class="help-text">
+                        <i class="fas fa-info-circle"></i>
+                        Uncheck to deactivate student
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <a href="/students/" class="btn-modern btn-secondary-modern">
+                <i class="fas fa-times"></i>
+                Cancel
+            </a>
+            <button type="submit" class="btn-modern btn-primary-modern">
+                <i class="fas fa-save"></i>
+                Save Student
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Auto-generate roll number preview
+    document.addEventListener('DOMContentLoaded', function() {
+        const fullNameInput = document.getElementById('id_full_name');
+        const semesterSelect = document.getElementById('id_semester');
+        
+        if (fullNameInput && semesterSelect) {
+            fullNameInput.addEventListener('input', updateRollPreview);
+            semesterSelect.addEventListener('change', updateRollPreview);
+        }
+    });
+
+    function updateRollPreview() {
+        // You can add AJAX call here to preview roll number
+        console.log('Roll number preview update');
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,574 @@
+{% extends 'base.html' %}
+
+{% block title %}Mark Attendance - EduTrack Pro{% endblock %}
+
+{% block breadcrumb_current %}Mark Attendance{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Attendance Page - Glassmorphism */
+    .attendance-header {
+        background: var(--glass-bg);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-2xl);
+        padding: clamp(2rem, 5vw, 3rem);
+        margin-bottom: 2rem;
+        box-shadow: var(--glass-shadow);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .attendance-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        animation: pulse 6s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.3); opacity: 0.8; }
+    }
+    
+    .header-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+    
+    .header-title h1 {
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        font-weight: 900;
+        margin: 0 0 0.5rem 0;
+        color: rgba(255, 255, 255, 0.98);
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+    }
+    
+    .header-title p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: clamp(0.9rem, 2vw, 1.1rem);
+        font-weight: 500;
+    }
+    
+    /* Stats Row */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: clamp(1.5rem, 3vw, 2rem);
+        box-shadow: var(--glass-shadow);
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-8px);
+        background: var(--glass-bg-light);
+        box-shadow: var(--glass-shadow-lg);
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+    
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        margin-bottom: 1rem;
+        color: #fff;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    
+    .stat-value {
+        font-size: clamp(2rem, 5vw, 2.5rem);
+        font-weight: 900;
+        color: rgba(255, 255, 255, 0.98);
+        margin-bottom: 0.25rem;
+        line-height: 1;
+    }
+    
+    .stat-label {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: clamp(0.85rem, 1.8vw, 1rem);
+        font-weight: 600;
+    }
+    
+    /* Filter Card */
+    .filter-card-modern {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: clamp(1.5rem, 3vw, 2rem);
+        margin-bottom: 2rem;
+        box-shadow: var(--glass-shadow);
+    }
+    
+    .filter-title {
+        font-size: clamp(1.1rem, 3vw, 1.3rem);
+        font-weight: 800;
+        color: rgba(255, 255, 255, 0.95);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    }
+    
+    .filter-title i {
+        color: var(--primary-light);
+    }
+    
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+        gap: 1.25rem;
+        align-items: end;
+    }
+    
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .filter-group label {
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .filter-group label i {
+        color: var(--primary-light);
+        font-size: 0.9rem;
+    }
+    
+    .filter-input {
+        padding: 0.75rem 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        border-radius: var(--radius-lg);
+        font-size: 0.9rem;
+        transition: var(--transition);
+        outline: none;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(10px);
+        color: rgba(255, 255, 255, 0.95);
+    }
+    
+    .filter-input:focus {
+        border-color: var(--primary);
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+    }
+    
+    .filter-input option {
+        background: #1e293b;
+        color: rgba(255, 255, 255, 0.95);
+    }
+    
+    /* Attendance Grid */
+    .attendance-grid-container {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: clamp(1.5rem, 3vw, 2rem);
+        margin-bottom: 2rem;
+        box-shadow: var(--glass-shadow);
+        overflow-x: auto;
+    }
+    
+    .attendance-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px;
+    }
+    
+    .attendance-table th {
+        padding: 1rem 1.25rem;
+        text-align: left;
+        font-weight: 800;
+        color: rgba(255, 255, 255, 0.7);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        background: rgba(255, 255, 255, 0.05);
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        white-space: nowrap;
+    }
+    
+    .attendance-table tbody tr {
+        background: rgba(255, 255, 255, 0.03);
+        transition: var(--transition);
+    }
+    
+    .attendance-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+    
+    .attendance-table td {
+        padding: 1rem 1.25rem;
+        color: rgba(255, 255, 255, 0.9);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+    
+    .attendance-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    /* Attendance Checkbox */
+    .attendance-checkbox {
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        accent-color: #10b981;
+    }
+    
+    /* Student Info in Table */
+    .student-info-cell {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .student-avatar-small {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+    
+    .student-name-cell {
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.95);
+    }
+    
+    .student-roll-cell {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.8125rem;
+    }
+    
+    /* Submit Section */
+    .submit-section {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: clamp(1.5rem, 3vw, 2rem);
+        box-shadow: var(--glass-shadow);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+    
+    .attendance-summary {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .summary-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .summary-item i {
+        font-size: 1.2rem;
+    }
+    
+    .summary-item.present i {
+        color: #6ee7b7;
+    }
+    
+    .summary-item.absent i {
+        color: #fca5a5;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .submit-section {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .attendance-summary {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Attendance Header -->
+<div class="attendance-header">
+    <div class="header-content">
+        <div class="header-title">
+            <h1>
+                <i class="fas fa-calendar-check"></i>
+                Mark Attendance
+            </h1>
+            <p>Select students and mark their attendance for the selected date</p>
+        </div>
+        <div class="page-actions">
+            <a href="/attendance/history/" class="btn-glass">
+                <i class="fas fa-history"></i>
+                View History
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-value">{{ total_students }}</div>
+        <div class="stat-label">Total Students</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-value" id="presentCount">0</div>
+        <div class="stat-label">Marked Present</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-times-circle"></i>
+        </div>
+        <div class="stat-value" id="absentCount">0</div>
+        <div class="stat-label">Marked Absent</div>
+    </div>
+</div>
+
+<!-- Filter Card -->
+<div class="filter-card-modern">
+    <h3 class="filter-title">
+        <i class="fas fa-filter"></i>
+        Filter Options
+    </h3>
+    <form method="get" class="filters-form">
+        <div class="filter-grid">
+            <div class="filter-group">
+                <label>
+                    <i class="fas fa-calendar"></i>
+                    Date
+                </label>
+                <input type="date" name="date" class="filter-input" value="{{ selected_date|date:'Y-m-d' }}">
+            </div>
+            <div class="filter-group">
+                <label>
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    Batch
+                </label>
+                <select name="batch" class="filter-input">
+                    <option value="">All Batches</option>
+                    {% for batch in batches %}
+                    <option value="{{ batch.id }}" {% if selected_batch == batch.id|stringformat:"s" %}selected{% endif %}>
+                        {{ batch.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn-glass btn-glass-primary">
+                    <i class="fas fa-search"></i>
+                    Filter
+                </button>
+                <a href="/attendance/mark/" class="btn-glass">
+                    <i class="fas fa-undo"></i>
+                    Reset
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Attendance Grid -->
+<form method="post" id="attendanceForm">
+    {% csrf_token %}
+    <input type="hidden" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+    
+    <div class="attendance-grid-container">
+        <table class="attendance-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">
+                        <input type="checkbox" class="attendance-checkbox" id="selectAll" onchange="toggleSelectAll()">
+                    </th>
+                    <th>Student</th>
+                    <th>Roll Number</th>
+                    <th>Batch</th>
+                    <th style="width: 100px;">Attendance</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td data-label="">
+                        <input type="checkbox" name="student_{{ student.id }}" class="attendance-checkbox student-checkbox" value="present" checked onchange="updateCounts()">
+                    </td>
+                    <td data-label="Student">
+                        <div class="student-info-cell">
+                            <div class="student-avatar-small">
+                                {{ student.full_name|first|upper }}
+                            </div>
+                            <div>
+                                <div class="student-name-cell">{{ student.full_name }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td data-label="Roll No">{{ student.roll_number }}</td>
+                    <td data-label="Batch">{{ student.batch.name }}</td>
+                    <td data-label="Status">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" name="student_{{ student.id }}" class="attendance-checkbox student-checkbox" value="present" checked onchange="updateCounts()" style="width: 24px; height: 24px;">
+                            <span style="color: rgba(255,255,255,0.8); font-size: 0.85rem; font-weight: 600;">Present</span>
+                        </label>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="empty-state">
+                        <i class="fas fa-user-slash"></i>
+                        <p>No students found for the selected filters</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Submit Section -->
+    <div class="submit-section">
+        <div class="attendance-summary">
+            <div class="summary-item present">
+                <i class="fas fa-check-circle"></i>
+                <span>Present: <strong id="presentCount2">0</strong></span>
+            </div>
+            <div class="summary-item absent">
+                <i class="fas fa-times-circle"></i>
+                <span>Absent: <strong id="absentCount2">0</strong></span>
+            </div>
+        </div>
+        <div class="page-actions">
+            <button type="submit" class="btn-glass btn-glass-success">
+                <i class="fas fa-save"></i>
+                Save Attendance
+            </button>
+        </div>
+    </div>
+</form>
+
+<script>
+    function updateCounts() {
+        const presentCheckboxes = document.querySelectorAll('.student-checkbox:checked');
+        const totalCheckboxes = document.querySelectorAll('.student-checkbox');
+        
+        const presentCount = presentCheckboxes.length;
+        const absentCount = totalCheckboxes.length - presentCount;
+        
+        document.getElementById('presentCount').textContent = presentCount;
+        document.getElementById('absentCount').textContent = absentCount;
+        document.getElementById('presentCount2').textContent = presentCount;
+        document.getElementById('absentCount2').textContent = absentCount;
+    }
+    
+    function toggleSelectAll() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.student-checkbox');
+        
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAll.checked;
+        });
+        
+        updateCounts();
+    }
+    
+    // Initialize counts on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCounts();
+    });
+</script>
+{% endblock %}

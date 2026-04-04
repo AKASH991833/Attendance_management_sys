@@ -1,0 +1,538 @@
+{% extends 'base.html' %}
+
+{% block title %}All Students - EduTrack Pro{% endblock %}
+
+{% block breadcrumb_current %}All Students{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Use global glassmorphism background */
+    .students-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+    
+    .students-bg::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            linear-gradient(135deg, rgba(15, 23, 42, 0.4) 0%, rgba(30, 27, 75, 0.35) 50%, rgba(88, 28, 135, 0.4) 100%),
+            url('/static/images/bg-dashboard.jpg') center center/cover no-repeat fixed;
+        opacity: 0.6;
+    }
+
+    .page-header {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(25px) saturate(200%);
+        -webkit-backdrop-filter: blur(25px) saturate(200%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 28px;
+        padding: clamp(1.5rem, 4vw, 2.5rem);
+        margin-bottom: 2rem;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+    }
+
+    .page-header h1 {
+        font-size: clamp(1.8rem, 4vw, 2.5rem);
+        font-weight: 800;
+        color: rgba(255, 255, 255, 0.98);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .page-header p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: clamp(0.95rem, 2vw, 1.1rem);
+        margin: 0.5rem 0 0 0;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(25px) saturate(200%);
+        -webkit-backdrop-filter: blur(25px) saturate(200%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        padding: clamp(1.5rem, 3vw, 2rem);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card:hover {
+        background: rgba(255, 255, 255, 0.06);
+        transform: translateY(-8px);
+        border-color: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .stat-card-icon {
+        width: 55px;
+        height: 55px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover .stat-card-icon {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    .stat-card-label {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: clamp(0.85rem, 2vw, 0.95rem);
+        font-weight: 600;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .stat-card-value {
+        font-size: clamp(2rem, 4vw, 2.8rem);
+        font-weight: 800;
+        color: rgba(255, 255, 255, 0.98);
+        margin: 0.5rem 0;
+        line-height: 1;
+    }
+
+    .stat-card-subtext {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filters-section {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        padding: clamp(1.5rem, 3vw, 2rem);
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        align-items: end;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .filter-group label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.7);
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 14px;
+        color: rgba(255, 255, 255, 0.95);
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-input:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.25);
+        box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
+    }
+    
+    .filter-input option {
+        background: #1a202c;
+        color: rgba(255, 255, 255, 0.95);
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-filter {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 14px;
+        color: rgba(255, 255, 255, 0.95);
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .btn-filter:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .btn-filter.primary {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .semester-section {
+        margin-bottom: 2.5rem;
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    .semester-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .semester-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.625rem 1.25rem;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        font-size: 0.9rem;
+        font-weight: 800;
+        color: white;
+    }
+
+    .semester-count {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-weight: 600;
+    }
+
+    .students-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.25rem;
+        transition: all 0.3s ease;
+    }
+    
+    .students-grid.collapsed {
+        max-height: 500px;
+        overflow: hidden;
+    }
+
+    .student-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        transition: all 0.4s ease;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .student-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        background: rgba(255, 255, 255, 0.06);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .student-avatar {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 800;
+        transition: all 0.3s ease;
+    }
+
+    .student-card:hover .student-avatar {
+        transform: scale(1.1);
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    .student-name {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.95);
+        margin: 0 0 0.375rem 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .student-roll {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin: 0 0 0.75rem 0;
+    }
+
+    .student-batch {
+        display: inline-block;
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.05);
+        padding: 0.25rem 0.625rem;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .more-students-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 1rem;
+        margin-top: 1.5rem;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        border: 1px dashed rgba(255, 255, 255, 0.15);
+        border-radius: 16px;
+        color: rgba(255, 255, 255, 0.85);
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .more-students-btn:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+    }
+    
+    .more-students-btn.active i {
+        transform: rotate(180deg);
+    }
+    
+    .more-students-btn i {
+        transition: transform 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .students-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .filters-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .students-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="students-bg"></div>
+
+<div class="page-header">
+    <div>
+        <h1>
+            <i class="fas fa-user-graduate"></i>
+            All Students
+        </h1>
+        <p>{{ students.count }} students</p>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-card-icon"><i class="fas fa-users"></i></div>
+        <p class="stat-card-label">Total Students</p>
+        <p class="stat-card-value">{{ students.count }}</p>
+        <p class="stat-card-subtext"><i class="fas fa-check-circle"></i> Enrolled</p>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon"><i class="fas fa-layer-group"></i></div>
+        <p class="stat-card-label">Batches</p>
+        <p class="stat-card-value">{{ batches.count }}</p>
+        <p class="stat-card-subtext"><i class="fas fa-chalkboard-teacher"></i> Active</p>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+        <p class="stat-card-label">Teachers</p>
+        <p class="stat-card-value">{{ teachers.count }}</p>
+        <p class="stat-card-subtext"><i class="fas fa-user-check"></i> Managing</p>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon"><i class="fas fa-calendar-check"></i></div>
+        <p class="stat-card-label">Avg Attendance</p>
+        <p class="stat-card-value">75%</p>
+        <p class="stat-card-subtext"><i class="fas fa-chart-line"></i> This Month</p>
+    </div>
+</div>
+
+<div class="filters-section">
+    <form method="get" class="filters-grid">
+        <div class="filter-group">
+            <label><i class="fas fa-search"></i> Search</label>
+            <input type="text" name="search" class="filter-input" placeholder="Student name or roll" value="{{ request.GET.search }}">
+        </div>
+        <div class="filter-group">
+            <label><i class="fas fa-layer-group"></i> Batch</label>
+            <select name="batch" class="filter-input">
+                <option value="">All Batches</option>
+                {% for batch in batches %}
+                <option value="{{ batch.id }}" {% if request.GET.batch == batch.id|stringformat:"s" %}selected{% endif %}>{{ batch.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label><i class="fas fa-book"></i> Semester</label>
+            <select name="semester" class="filter-input">
+                <option value="">All Semesters</option>
+                {% for sem in semesters %}
+                <option value="{{ sem.0 }}" {% if request.GET.semester == sem.0 %}selected{% endif %}>Semester {{ sem.0 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-actions">
+            <button type="submit" class="btn-filter primary"><i class="fas fa-filter"></i> Filter</button>
+            <a href="/admin-panel/students/" class="btn-filter"><i class="fas fa-undo"></i> Reset</a>
+        </div>
+    </form>
+</div>
+
+{% if students %}
+    {% regroup students by batch.semester as semester_list %}
+    
+    {% for semester in semester_list %}
+    <div class="semester-section">
+        <div class="semester-header">
+            <div class="semester-badge">
+                <i class="fas fa-graduation-cap"></i>
+                Semester {{ semester.grouper }}
+            </div>
+            <span class="semester-count">{{ semester.list|length }} students</span>
+        </div>
+        
+        <div class="students-grid {% if semester.list|length > 6 %}collapsed{% endif %}" id="sem{{ semester.grouper }}Grid">
+            {% for student in semester.list %}
+            <div class="student-card">
+                <div class="student-avatar">{{ student.full_name|first|upper }}</div>
+                <h3 class="student-name">{{ student.full_name }}</h3>
+                <p class="student-roll">{{ student.roll_number }}</p>
+                <span class="student-batch">{{ student.batch.name }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if semester.list|length > 6 %}
+        <button class="more-students-btn" onclick="toggleMore('sem{{ semester.grouper }}Grid', this)">
+            <span>Show More Students</span>
+            <i class="fas fa-chevron-down"></i>
+        </button>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% else %}
+<div class="empty-state">
+    <i class="fas fa-user-slash"></i>
+    <h3>No Students Found</h3>
+    <p>No students match your criteria</p>
+</div>
+{% endif %}
+
+<script>
+function toggleMore(gridId, btn) {
+    const grid = document.getElementById(gridId);
+    grid.classList.toggle('collapsed');
+    btn.classList.toggle('active');
+    btn.querySelector('span').textContent = grid.classList.contains('collapsed') ? 'Show More Students' : 'Show Less';
+}
+</script>
+{% endblock %}

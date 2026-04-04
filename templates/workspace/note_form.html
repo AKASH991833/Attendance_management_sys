@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if action == 'add' %}Add{% else %}Edit{% endif %} Note - EduTrack Pro{% endblock %}
+
+{% block breadcrumb_current %}{{ action|title }} Note{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-sticky-note"></i> {% if action == 'add' %}Add{% else %}Edit{% endif %} Note</h1>
+    <p>Create or update your note</p>
+</div>
+
+<div class="form-card" style="max-width: 800px;">
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="id_title">Title</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+            <span class="error-text">{{ form.title.errors.0 }}</span>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="id_content">Content</label>
+            {{ form.content }}
+            {% if form.content.errors %}
+            <span class="error-text">{{ form.content.errors.0 }}</span>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label class="checkbox-label">
+                {{ form.is_pinned }}
+                <span>Pin this note to the top</span>
+            </label>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> {% if action == 'add' %}Create{% else %}Update{% endif %} Note
+            </button>
+            <a href="/workspace/notes/" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

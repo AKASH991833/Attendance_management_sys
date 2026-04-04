@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications - EduTrack Pro{% endblock %}
+
+{% block breadcrumb_current %}Notifications{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="fas fa-bell"></i> Notifications</h1>
+        <p>Stay updated with important alerts</p>
+    </div>
+    <button class="btn btn-secondary" onclick="markAllRead()">
+        <i class="fas fa-check-double"></i> Mark All Read
+    </button>
+</div>
+
+<div class="table-card">
+    {% if page_obj %}
+    <div class="notifications-full-list">
+        {% for notification in page_obj %}
+        <div class="notification-full-item {% if not notification.is_read %}notification-unread{% endif %}" data-id="{{ notification.id }}">
+            <div class="notification-icon-large">
+                {{ notification.icon }}
+            </div>
+            <div class="notification-full-content">
+                <div class="notification-full-header">
+                    <h4>{{ notification.title }}</h4>
+                    <span class="badge badge-{{ notification.color_class }}">{{ notification.get_type_display }}</span>
+                </div>
+                <p>{{ notification.message }}</p>
+                <div class="notification-full-meta">
+                    <span><i class="fas fa-clock"></i> {{ notification.created_at|timesince }} ago</span>
+                    {% if notification.related_student %}
+                    <span><i class="fas fa-user"></i> {{ notification.related_student.full_name }}</span>
+                    {% endif %}
+                    {% if not notification.is_read %}
+                    <button class="btn-link" onclick="markAsRead({{ notification.id }})">Mark as Read</button>
+                    {% endif %}
+                    <button class="btn-link text-danger" onclick="deleteNotification({{ notification.id }})">Delete</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page=1" class="btn btn-sm btn-secondary">First</a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-sm btn-secondary">Previous</a>
+        {% endif %}
+        <span class="page-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-sm btn-secondary">Next</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-sm btn-secondary">Last</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-bell-slash"></i>
+        <h3>No Notifications</h3>
+        <p>You're all caught up!</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+.notifications-full-list { display: flex; flex-direction: column; }
+.notification-full-item { display: flex; gap: 1rem; padding: 1.5rem; border-bottom: 1px solid var(--border); transition: var(--transition); }
+.notification-full-item:hover { background: var(--bg-light); }
+.notification-full-item.notification-unread { background: var(--info-light); border-left: 3px solid var(--info); }
+.notification-icon-large { font-size: 2rem; }
+.notification-full-content { flex: 1; }
+.notification-full-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+.notification-full-header h4 { margin: 0; font-size: 1rem; }
+.notification-full-content p { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.75rem; }
+.notification-full-meta { display: flex; gap: 1rem; font-size: 0.75rem; color: var(--text-secondary); align-items: center; }
+</style>
+
+<script>
+function markAsRead(id) {
+    fetch(`/api/notifications/${id}/read/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            const item = document.querySelector(`.notification-full-item[data-id="${id}"]`);
+            if (item) {
+                item.classList.remove('notification-unread');
+                item.querySelector('[onclick*="markAsRead"]').remove();
+            }
+            updateNotificationBadge();
+        }
+    });
+}
+
+function markAllRead() {
+    fetch('/api/notifications/mark-all-read/', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            document.querySelectorAll('.notification-unread').forEach(item => {
+                item.classList.remove('notification-unread');
+                const btn = item.querySelector('[onclick*="markAsRead"]');
+                if (btn) btn.remove();
+            });
+            updateNotificationBadge();
+            showToast('All notifications marked as read', 'success');
+        }
+    });
+}
+
+function deleteNotification(id) {
+    if (!confirm('Delete this notification?')) return;
+    
+    fetch(`/api/notifications/${id}/delete/`, {
+        method: 'DELETE',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            const item = document.querySelector(`.notification-full-item[data-id="${id}"]`);
+            if (item) item.remove();
+            showToast('Notification deleted', 'success');
+        }
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,1121 @@
+{% extends 'base.html' %}
+{% load super_admin_tags %}
+
+{% block title %}{{ teacher.full_name|default:teacher.user.username }} - Timetable - EduTrack Pro{% endblock %}
+
+{% block breadcrumb-current %}Teacher Timetable{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ===================================
+       TEACHER TIMETABLE - MODERN PROFESSIONAL UI
+       Enhanced UX with better visualization
+       =================================== */
+
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.08);
+        --glass-bg-light: rgba(255, 255, 255, 0.12);
+        --glass-bg-hover: rgba(255, 255, 255, 0.15);
+        --glass-border: rgba(255, 255, 255, 0.2);
+        --glass-border-hover: rgba(255, 255, 255, 0.35);
+        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        --glass-shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.2);
+        --backdrop-blur: blur(24px);
+
+        --primary-gradient: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%);
+        --success-gradient: linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(5, 150, 105, 0.95) 100%);
+        --info-gradient: linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(37, 99, 235, 0.95) 100%);
+        --warning-gradient: linear-gradient(135deg, rgba(245, 158, 11, 0.95) 0%, rgba(217, 119, 6, 0.95) 100%);
+        --danger-gradient: linear-gradient(135deg, rgba(239, 68, 68, 0.95) 0%, rgba(220, 38, 38, 0.95) 100%);
+        --purple-gradient: linear-gradient(135deg, rgba(168, 85, 247, 0.95) 0%, rgba(147, 51, 234, 0.95) 100%);
+        --pink-gradient: linear-gradient(135deg, rgba(236, 72, 153, 0.95) 0%, rgba(219, 39, 119, 0.95) 100%);
+        --cyan-gradient: linear-gradient(135deg, rgba(6, 182, 212, 0.95) 0%, rgba(8, 145, 178, 0.95) 100%);
+    }
+
+    /* Animated Background */
+    .timetable-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        overflow: hidden;
+    }
+
+    .timetable-bg::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background-image:
+            radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 40%),
+            radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.08) 0%, transparent 40%);
+        animation: moveBackground 40s ease-in-out infinite;
+    }
+
+    @keyframes moveBackground {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        50% { transform: translate(2%, 3%) scale(1.05); }
+    }
+
+    .timetable-bg::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 60px 60px;
+        opacity: 0.5;
+    }
+
+    /* Container */
+    .timetable-container {
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: var(--glass-bg);
+        backdrop-filter: var(--backdrop-blur);
+        -webkit-backdrop-filter: var(--backdrop-blur);
+        border: 2px solid var(--glass-border);
+        border-radius: 24px;
+        padding: clamp(1.5rem, 4vw, 2.5rem);
+        margin-bottom: 2rem;
+        box-shadow: var(--glass-shadow);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .page-header:hover {
+        border-color: var(--glass-border-hover);
+        box-shadow: var(--glass-shadow-hover);
+    }
+
+    .header-content h1 {
+        font-size: clamp(1.5rem, 4vw, 2.25rem);
+        font-weight: 900;
+        color: white;
+        margin: 0 0 0.5rem 0;
+        text-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        letter-spacing: -0.5px;
+    }
+
+    .teacher-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .teacher-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--primary-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .teacher-details {
+        flex: 1;
+    }
+
+    .teacher-name {
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .teacher-meta {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.9rem;
+        margin: 0.25rem 0 0 0;
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .teacher-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-glass {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid var(--glass-border);
+        background: rgba(255, 255, 255, 0.12);
+        color: white;
+        backdrop-filter: blur(10px);
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .btn-glass:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: var(--glass-border-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-glass-primary {
+        background: var(--primary-gradient);
+        border: none;
+    }
+
+    .btn-icon {
+        padding: 0.75rem;
+        aspect-ratio: 1;
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+        background: var(--glass-bg);
+        backdrop-filter: var(--backdrop-blur);
+        border: 2px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--glass-shadow);
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-label {
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 600;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        flex: 1;
+    }
+
+    .filter-tab {
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .filter-tab:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .filter-tab.active {
+        background: var(--primary-gradient);
+        border-color: transparent;
+        color: white;
+    }
+
+    .view-toggle {
+        display: flex;
+        gap: 0.5rem;
+        margin-left: auto;
+    }
+
+    /* Stats Row */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--glass-bg);
+        backdrop-filter: var(--backdrop-blur);
+        -webkit-backdrop-filter: var(--backdrop-blur);
+        border: 2px solid var(--glass-border);
+        border-radius: 16px;
+        padding: clamp(1rem, 2.5vw, 1.5rem);
+        box-shadow: var(--glass-shadow);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--stat-accent);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-6px) scale(1.02);
+        background: var(--glass-bg-hover);
+        box-shadow: var(--glass-shadow-hover);
+        border-color: var(--glass-border-hover);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: var(--stat-accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.75rem;
+        font-size: 1.25rem;
+        color: white;
+    }
+
+    .stat-number {
+        font-size: clamp(1.75rem, 4vw, 2.5rem);
+        font-weight: 900;
+        color: white;
+        margin: 0;
+        line-height: 1;
+    }
+
+    .stat-label {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: clamp(0.8rem, 1.6vw, 0.95rem);
+        font-weight: 600;
+        margin: 0.5rem 0 0 0;
+    }
+
+    /* View Modes */
+    .view-mode {
+        display: none;
+    }
+
+    .view-mode.active {
+        display: block;
+    }
+
+    /* Grid View (Day Cards) */
+    .days-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 1.75rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .days-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Day Card */
+    .day-card {
+        background: var(--glass-bg);
+        backdrop-filter: var(--backdrop-blur);
+        -webkit-backdrop-filter: var(--backdrop-blur);
+        border: 2px solid var(--glass-border);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: var(--glass-shadow);
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .day-card:hover {
+        border-color: var(--glass-border-hover);
+        box-shadow: var(--glass-shadow-hover);
+    }
+
+    .day-card.hidden {
+        display: none;
+    }
+
+    .day-header {
+        padding: 1.25rem 1.5rem;
+        background: var(--day-gradient);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .day-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+        animation: rotateBg 20s linear infinite;
+    }
+
+    @keyframes rotateBg {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .day-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: white;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .day-count {
+        background: rgba(255, 255, 255, 0.25);
+        padding: 0.35rem 0.75rem;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: white;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .day-body {
+        padding: 1.25rem;
+    }
+
+    /* Time Slots */
+    .time-slots {
+        display: flex;
+        flex-direction: column;
+        gap: 0.875rem;
+    }
+
+    .time-slot {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 14px;
+        padding: 1rem 1.25rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .time-slot::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--slot-gradient);
+        border-radius: 4px 0 0 4px;
+    }
+
+    .time-slot:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateX(6px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .slot-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .slot-time {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .time-badge {
+        background: var(--slot-gradient);
+        padding: 0.4rem 0.75rem;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .time-separator {
+        color: rgba(255, 255, 255, 0.5);
+        font-weight: 600;
+    }
+
+    .duration-badge {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.3rem 0.6rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.85);
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .slot-subject {
+        font-weight: 700;
+        color: white;
+        font-size: 1rem;
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .slot-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .slot-detail-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 0.85rem;
+    }
+
+    .slot-detail-item i {
+        width: 16px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.8rem;
+    }
+
+    /* Empty State */
+    .empty-day {
+        text-align: center;
+        padding: 2.5rem 1.5rem;
+    }
+
+    .empty-day i {
+        font-size: 2.5rem;
+        color: rgba(255, 255, 255, 0.25);
+        margin-bottom: 0.75rem;
+    }
+
+    .empty-day p {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.95rem;
+        margin: 0;
+    }
+
+    /* Day Gradients */
+    .day-monday { --day-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .day-tuesday { --day-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .day-wednesday { --day-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .day-thursday { --day-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    .day-friday { --day-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    .day-saturday { --day-gradient: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+    .day-sunday { --day-gradient: linear-gradient(135deg, #ec4899 0%, #db2777 100%); }
+
+    /* Slot Gradients */
+    .slot-1 { --slot-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .slot-2 { --slot-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .slot-3 { --slot-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .slot-4 { --slot-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    .slot-5 { --slot-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    .slot-6 { --slot-gradient: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+    .slot-7 { --slot-gradient: linear-gradient(135deg, #ec4899 0%, #db2777 100%); }
+    .slot-8 { --slot-gradient: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
+
+    /* Table View */
+    .table-view {
+        background: var(--glass-bg);
+        backdrop-filter: var(--backdrop-blur);
+        border: 2px solid var(--glass-border);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: var(--glass-shadow);
+        margin-bottom: 2rem;
+    }
+
+    .timetable-table {
+        width: 100%;
+        border-collapse: collapse;
+        color: white;
+    }
+
+    .timetable-table thead {
+        background: var(--primary-gradient);
+    }
+
+    .timetable-table th {
+        padding: 1rem 1.25rem;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-align: left;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .timetable-table td {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 0.95rem;
+    }
+
+    .timetable-table tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    .timetable-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .timetable-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .day-badge {
+        display: inline-block;
+        padding: 0.4rem 0.875rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: white;
+    }
+
+    .badge-monday { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .badge-tuesday { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .badge-wednesday { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .badge-thursday { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    .badge-friday { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    .badge-saturday { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+    .badge-sunday { background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); }
+
+    /* Print Styles */
+    @media print {
+        .timetable-bg,
+        .filter-bar,
+        .header-actions,
+        .view-toggle,
+        .btn-glass {
+            display: none !important;
+        }
+
+        .page-header {
+            background: white;
+            border: 2px solid #333;
+            box-shadow: none;
+            color: black;
+        }
+
+        .page-header h1,
+        .teacher-name,
+        .stat-number,
+        .stat-label {
+            color: black;
+            text-shadow: none;
+        }
+
+        .day-card {
+            break-inside: avoid;
+            background: white;
+            border: 2px solid #ddd;
+            box-shadow: none;
+        }
+
+        body {
+            background: white;
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .days-grid {
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-content h1 {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-actions {
+            width: 100%;
+        }
+
+        .header-actions .btn-glass {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .days-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-bar {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .view-toggle {
+            margin-left: 0;
+            width: 100%;
+            justify-content: flex-end;
+        }
+
+        .timetable-table {
+            font-size: 0.85rem;
+        }
+
+        .timetable-table th,
+        .timetable-table td {
+            padding: 0.75rem 0.875rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-row {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-tabs {
+            width: 100%;
+        }
+
+        .filter-tab {
+            flex: 1;
+            text-align: center;
+        }
+    }
+
+    /* Loading Animation */
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    .loading {
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    /* Tooltip */
+    [data-tooltip] {
+        position: relative;
+    }
+
+    [data-tooltip]:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0.5rem 0.75rem;
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border-radius: 6px;
+        white-space: nowrap;
+        z-index: 1000;
+        margin-bottom: 0.5rem;
+        pointer-events: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Animated Background -->
+<div class="timetable-bg"></div>
+
+<div class="timetable-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1>
+                <i class="fas fa-calendar-alt"></i>
+                Teacher Timetable
+            </h1>
+            <div class="teacher-info">
+                <div class="teacher-avatar">
+                    {{ teacher.full_name|default:teacher.user.username|make_list|first|upper }}
+                </div>
+                <div class="teacher-details">
+                    <p class="teacher-name">{{ teacher.full_name|default:teacher.user.username }}</p>
+                    <p class="teacher-meta">
+                        <span><i class="fas fa-envelope"></i> {{ teacher.user.email|default:"N/A" }}</span>
+                        <span><i class="fas fa-users"></i> {{ total_batches }} Batch{{ total_batches|pluralize }}</span>
+                        <span><i class="fas fa-clock"></i> {{ total_slots }} Slot{{ total_slots|pluralize }}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn-glass btn-icon" onclick="window.print()" data-tooltip="Print Timetable">
+                <i class="fas fa-print"></i>
+            </button>
+            <button class="btn-glass btn-icon" id="refreshBtn" onclick="location.reload()" data-tooltip="Refresh">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+            <a href="{% url 'super_admin:teacher_detail' teacher.pk %}" class="btn-glass btn-glass-primary">
+                <i class="fas fa-arrow-left"></i> Back to Teacher
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+        <div class="stat-card" style="--stat-accent: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="stat-icon">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-number">{{ total_slots }}</div>
+            <div class="stat-label">Total Slots</div>
+        </div>
+        <div class="stat-card" style="--stat-accent: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+            <div class="stat-icon">
+                <i class="fas fa-calendar-week"></i>
+            </div>
+            <div class="stat-number">{{ days_with_classes }}</div>
+            <div class="stat-label">Active Days</div>
+        </div>
+        <div class="stat-card" style="--stat-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-number">{{ total_batches }}</div>
+            <div class="stat-label">Total Batches</div>
+        </div>
+        <div class="stat-card" style="--stat-accent: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+            <div class="stat-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-number">{{ average_slots_per_day }}</div>
+            <div class="stat-label">Avg Slots/Day</div>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <div class="filter-group">
+            <span class="filter-label"><i class="fas fa-filter"></i> Filter:</span>
+        </div>
+        <div class="filter-tabs">
+            <div class="filter-tab active" data-day="all">All Days</div>
+            {% for day in days_order %}
+            <div class="filter-tab" data-day="{{ day|lower }}">{{ day|truncatechars:3 }}</div>
+            {% endfor %}
+        </div>
+        <div class="view-toggle">
+            <button class="btn-glass btn-icon active" id="gridViewBtn" onclick="switchView('grid')" data-tooltip="Grid View">
+                <i class="fas fa-th-large"></i>
+            </button>
+            <button class="btn-glass btn-icon" id="tableViewBtn" onclick="switchView('table')" data-tooltip="Table View">
+                <i class="fas fa-table"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Grid View -->
+    <div class="view-mode active" id="gridView">
+        <div class="days-grid">
+            {% for day in days_order %}
+            <div class="day-card day-{{ day|lower }}" data-day="{{ day|lower }}">
+                <div class="day-header">
+                    <h3 class="day-title">
+                        <i class="fas fa-calendar-day"></i>
+                        {{ day }}
+                        <span class="day-count">
+                            {% if timetable_by_day|get_item:day %}
+                                {{ timetable_by_day|get_item:day|length }} slot{{ timetable_by_day|get_item:day|length|pluralize }}
+                            {% else %}
+                                0 slots
+                            {% endif %}
+                        </span>
+                    </h3>
+                </div>
+                <div class="day-body">
+                    {% if timetable_by_day|get_item:day %}
+                    <div class="time-slots">
+                        {% for slot in timetable_by_day|get_item:day %}
+                        <div class="time-slot slot-{{ forloop.counter }}">
+                            <div class="slot-header">
+                                <div class="slot-time">
+                                    <span class="time-badge">
+                                        <i class="fas fa-clock"></i>
+                                        {{ slot.start_time|date:"h:i A" }}
+                                    </span>
+                                    <span class="time-separator">→</span>
+                                    <span class="time-badge" style="background: rgba(255,255,255,0.2);">
+                                        {{ slot.end_time|date:"h:i A" }}
+                                    </span>
+                                </div>
+                                <span class="duration-badge">
+                                    <i class="fas fa-hourglass-half"></i>
+                                    {{ slot.duration_minutes }}m
+                                </span>
+                            </div>
+                            <div class="slot-details">
+                                <p class="slot-subject">
+                                    {% if slot.subject %}
+                                        <i class="fas fa-book-open"></i> {{ slot.subject }}
+                                    {% else %}
+                                        <i class="fas fa-chalkboard"></i> Class
+                                    {% endif %}
+                                </p>
+                                {% if slot.batch %}
+                                <div class="slot-detail-item">
+                                    <i class="fas fa-users"></i>
+                                    <span>{{ slot.batch.name }}{% if slot.batch.semester %} • Sem {{ slot.batch.semester }}{% endif %}</span>
+                                </div>
+                                {% endif %}
+                                {% if slot.room %}
+                                <div class="slot-detail-item">
+                                    <i class="fas fa-door-open"></i>
+                                    <span>Room {{ slot.room }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-day">
+                        <i class="fas fa-calendar-times"></i>
+                        <p>No classes scheduled</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Table View -->
+    <div class="view-mode" id="tableView">
+        <div class="table-view">
+            <table class="timetable-table">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-calendar"></i> Day</th>
+                        <th><i class="fas fa-clock"></i> Time</th>
+                        <th><i class="fas fa-hourglass-half"></i> Duration</th>
+                        <th><i class="fas fa-book"></i> Subject</th>
+                        <th><i class="fas fa-users"></i> Batch</th>
+                        <th><i class="fas fa-door-open"></i> Room</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for day in days_order %}
+                        {% if timetable_by_day|get_item:day %}
+                            {% for slot in timetable_by_day|get_item:day %}
+                            <tr data-day="{{ day|lower }}">
+                                <td>
+                                    <span class="day-badge badge-{{ day|lower }}">{{ day }}</span>
+                                </td>
+                                <td>
+                                    <strong>{{ slot.start_time|date:"h:i A" }}</strong> - {{ slot.end_time|date:"h:i A" }}
+                                </td>
+                                <td>{{ slot.duration_minutes }} minutes</td>
+                                <td>
+                                    {% if slot.subject %}
+                                        <i class="fas fa-book-open" style="color: rgba(255,255,255,0.6);"></i> {{ slot.subject }}
+                                    {% else %}
+                                        <i class="fas fa-chalkboard" style="color: rgba(255,255,255,0.6);"></i> Class
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if slot.batch %}
+                                        {{ slot.batch.name }}
+                                        {% if slot.batch.semester %}
+                                            <span style="color: rgba(255,255,255,0.5);">(Sem {{ slot.batch.semester }})</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span style="color: rgba(255,255,255,0.4);">No batch</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if slot.room %}
+                                        <i class="fas fa-door-open" style="color: rgba(255,255,255,0.5);"></i> {{ slot.room }}
+                                    {% else %}
+                                        <span style="color: rgba(255,255,255,0.3);">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 3rem; color: rgba(255,255,255,0.5);">
+                            <i class="fas fa-calendar-times" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+                            No timetable slots available
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Filter by day
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Update active state
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            const selectedDay = this.dataset.day;
+            
+            // Filter day cards
+            document.querySelectorAll('.day-card').forEach(card => {
+                if (selectedDay === 'all' || card.dataset.day === selectedDay) {
+                    card.classList.remove('hidden');
+                    card.style.animation = 'none';
+                    setTimeout(() => {
+                        card.style.animation = 'fadeInUp 0.5s ease-out';
+                    }, 10);
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            // Filter table rows
+            document.querySelectorAll('.timetable-table tbody tr').forEach(row => {
+                if (selectedDay === 'all' || row.dataset.day === selectedDay) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // Switch between grid and table view
+    function switchView(view) {
+        const gridView = document.getElementById('gridView');
+        const tableView = document.getElementById('tableView');
+        const gridBtn = document.getElementById('gridViewBtn');
+        const tableBtn = document.getElementById('tableViewBtn');
+
+        if (view === 'grid') {
+            gridView.classList.add('active');
+            tableView.classList.remove('active');
+            gridBtn.classList.add('active');
+            tableBtn.classList.remove('active');
+        } else {
+            tableView.classList.add('active');
+            gridView.classList.remove('active');
+            tableBtn.classList.add('active');
+            gridBtn.classList.remove('active');
+        }
+    }
+
+    // Add smooth animations on scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.day-card, .stat-card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+
+    // Trigger initial animation
+    setTimeout(() => {
+        document.querySelectorAll('.day-card, .stat-card').forEach((card, index) => {
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 50);
+        });
+    }, 100);
+</script>
+{% endblock %}

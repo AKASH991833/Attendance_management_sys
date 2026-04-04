@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Student - EduTrack Pro{% endblock %}
+
+{% block breadcrumb_current %}Edit Student{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-edit"></i> Edit Student</h1>
+    <p>Update student information</p>
+</div>
+
+<div class="form-card">
+    <form method="post" class="form-horizontal">
+        {% csrf_token %}
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="id_full_name">Full Name <span class="required">*</span></label>
+                {{ form.full_name }}
+                {% if form.full_name.errors %}
+                <span class="error-text">{{ form.full_name.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_roll_number">Roll Number <span class="required">*</span></label>
+                {{ form.roll_number }}
+                {% if form.roll_number.errors %}
+                <span class="error-text">{{ form.roll_number.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="id_semester">Semester <span class="required">*</span></label>
+                {{ form.semester }}
+                {% if form.semester.errors %}
+                <span class="error-text">{{ form.semester.errors.0 }}</span>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_batch">Batch <span class="required">*</span></label>
+                {{ form.batch }}
+                {% if form.batch.errors %}
+                <span class="error-text">{{ form.batch.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="id_contact_number">Contact Number (WhatsApp) <span class="required">*</span></label>
+                {{ form.contact_number }}
+                {% if form.contact_number.errors %}
+                <span class="error-text">{{ form.contact_number.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_email">Email Address</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                <span class="error-text">{{ form.email.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Update Student
+            </button>
+            <a href="/students/" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

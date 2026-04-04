@@ -1,0 +1,464 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports - EduTrack Pro{% endblock %}
+
+{% block breadcrumb_current %}Reports{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: var(--glass-bg);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-2xl);
+        padding: clamp(1.5rem, 4vw, 2.5rem);
+        margin-bottom: 2rem;
+        box-shadow: var(--glass-shadow);
+    }
+    
+    .page-header h1 {
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        font-weight: 900;
+        color: rgba(255, 255, 255, 0.98);
+        margin: 0;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+    }
+    
+    .page-header p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: clamp(0.9rem, 2vw, 1.1rem);
+        margin: 0.5rem 0 0 0;
+    }
+    
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 450px), 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .dashboard-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--glass-shadow);
+        overflow: hidden;
+    }
+    
+    .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .card-header h3 {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: rgba(255, 255, 255, 0.95);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .form-control, .form-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        border-radius: var(--radius-lg);
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(10px);
+        color: rgba(255, 255, 255, 0.95);
+        transition: var(--transition);
+    }
+    
+    .form-control:focus, .form-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+    }
+    
+    .form-control option {
+        background: #1e293b;
+        color: rgba(255, 255, 255, 0.95);
+    }
+    
+    .export-options {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    .export-option {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        text-align: center;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    
+    .export-option:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.25);
+        transform: translateY(-4px);
+    }
+    
+    .export-option i {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+        color: var(--primary-light);
+    }
+    
+    .export-option span {
+        display: block;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.9rem;
+    }
+    
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 1.25rem;
+            border-radius: var(--radius-lg);
+        }
+        
+        .page-header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .dashboard-card {
+            border-radius: var(--radius-lg);
+        }
+        
+        .card-header {
+            padding: 1rem;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        
+        .card-header h3 {
+            font-size: 1rem;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            font-size: 0.85rem;
+        }
+        
+        .form-control, .form-select {
+            min-height: 48px;
+            font-size: 16px;
+            padding: 0.75rem;
+        }
+        
+        .btn {
+            min-height: 48px;
+            padding: 0.875rem 1.25rem;
+            font-size: 0.9rem;
+        }
+        
+        .btn-block {
+            width: 100%;
+        }
+        
+        .export-options {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        .export-option {
+            padding: 1rem;
+        }
+        
+        .export-option i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .export-option span {
+            font-size: 0.85rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .page-header {
+            padding: 1rem;
+        }
+        
+        .page-header h1 {
+            font-size: 1.3rem;
+        }
+        
+        .card-body {
+            padding: 0.875rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-chart-bar"></i> Reports & Export</h1>
+    <p>Generate and export attendance reports</p>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Batch Attendance Report -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-users"></i> Batch Attendance Report</h3>
+        </div>
+        <div class="card-body">
+            <form id="batchReportForm">
+                <div class="form-group">
+                    <label for="reportBatch">Select Batch</label>
+                    <select id="reportBatch" class="form-control">
+                        <option value="">Select a batch</option>
+                        {% for batch in batches %}
+                        <option value="{{ batch.id }}">{{ batch.name }} - {{ batch.subject }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="fromDate">From Date</label>
+                    <input type="date" id="fromDate" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="toDate">To Date</label>
+                    <input type="date" id="toDate" class="form-control">
+                </div>
+                <button type="button" class="btn btn-primary btn-block" onclick="generateReport('batch')">
+                    <i class="fas fa-file-alt"></i> Generate Report
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Low Attendance Report -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-exclamation-triangle"></i> Low Attendance Report</h3>
+        </div>
+        <div class="card-body">
+            <p class="text-secondary mb-3">Students with attendance below 75%</p>
+            <button type="button" class="btn btn-warning btn-block" onclick="generateReport('low_attendance')">
+                <i class="fas fa-file-alt"></i> Generate Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Daily Summary Report -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><i class="fas fa-calendar-day"></i> Daily Summary</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label for="specificDate">Select Date</label>
+                <input type="date" id="specificDate" class="form-control">
+            </div>
+            <button type="button" class="btn btn-info btn-block" onclick="generateReport('daily')">
+                <i class="fas fa-file-alt"></i> Generate Report
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Report Preview Section -->
+<div id="reportPreview" class="table-card mt-4" style="display: none;">
+    <div class="card-header">
+        <h3><i class="fas fa-table"></i> Report Preview</h3>
+        <div>
+            <button class="btn btn-sm btn-success" onclick="exportExcel()">
+                <i class="fas fa-file-excel"></i> Export Excel
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="exportPDF()">
+                <i class="fas fa-file-pdf"></i> Export PDF
+            </button>
+        </div>
+    </div>
+    <div class="card-body" id="reportContent"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentReportData = null;
+let currentReportType = null;
+
+function generateReport(type) {
+    let url = `/api/reports/data/?type=${type}`;
+
+    if (type === 'batch') {
+        const batchId = document.getElementById('reportBatch').value;
+        const fromDate = document.getElementById('fromDate').value;
+        const toDate = document.getElementById('toDate').value;
+
+        if (!batchId || !fromDate || !toDate) {
+            showToast('Please fill all fields', 'error');
+            return;
+        }
+
+        url += `&batch_id=${batchId}&from_date=${fromDate}&to_date=${toDate}`;
+    } else if (type === 'daily') {
+        const specificDate = document.getElementById('specificDate').value;
+        if (!specificDate) {
+            showToast('Please select a date', 'error');
+            return;
+        }
+        url += `&specific_date=${specificDate}`;
+    }
+
+    fetch(url, { headers: {'X-Requested-With': 'XMLHttpRequest'} })
+    .then(r => r.json())
+    .then(data => {
+        currentReportData = data;
+        currentReportType = type;
+        displayReport(data);
+    })
+    .catch(e => {
+        console.error('Error:', e);
+        showToast('Failed to generate report', 'error');
+    });
+}
+
+function displayReport(data) {
+    const preview = document.getElementById('reportPreview');
+    const content = document.getElementById('reportContent');
+
+    let html = '<div class="table-responsive"><table class="data-table"><thead><tr>';
+
+    if (data.report_type === 'batch') {
+        html += '<th>Roll No</th><th>Name</th><th>Total</th><th>Present</th><th>Absent</th><th>Percentage</th>';
+    } else if (data.report_type === 'low_attendance') {
+        html += '<th>Roll No</th><th>Name</th><th>Batch</th><th>Total</th><th>Present</th><th>Absent</th><th>Percentage</th>';
+    } else if (data.report_type === 'daily') {
+        html += '<th>Batch</th><th>Total</th><th>Present</th><th>Absent</th><th>Percentage</th>';
+    }
+
+    html += '</tr></thead><tbody>';
+
+    let students = data.students || data.batches || [];
+    students.forEach(item => {
+        let percentageClass = item.percentage >= 75 ? 'badge-success' : (item.percentage >= 60 ? 'badge-warning' : 'badge-danger');
+
+        if (data.report_type === 'batch' || data.report_type === 'low_attendance') {
+            html += `<tr>
+                <td data-label="Roll No">${item.roll_number}</td>
+                <td data-label="Name">${item.full_name}</td>
+                ${item.batch ? `<td data-label="Batch">${item.batch}</td>` : ''}
+                <td data-label="Total">${item.total_classes || item.total}</td>
+                <td data-label="Present">${item.present}</td>
+                <td data-label="Absent">${item.absent}</td>
+                <td data-label="Percentage"><span class="badge ${percentageClass}">${item.percentage}%</span></td>
+            </tr>`;
+        } else {
+            html += `<tr>
+                <td data-label="Batch">${item.batch_name}</td>
+                <td data-label="Total">${item.total}</td>
+                <td data-label="Present">${item.present}</td>
+                <td data-label="Absent">${item.absent}</td>
+                <td data-label="Percentage"><span class="badge ${percentageClass}">${item.percentage}%</span></td>
+            </tr>`;
+        }
+    });
+
+    html += '</tbody></table></div>';
+    content.innerHTML = html;
+    preview.style.display = 'block';
+}
+
+function exportExcel() {
+    if (!currentReportData) return;
+
+    fetch('/reports/export/excel/', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ type: currentReportType, data: currentReportData })
+    })
+    .then(r => r.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `report_${Date.now()}.xlsx`;
+        a.click();
+    });
+}
+
+function exportPDF() {
+    if (!currentReportData) return;
+
+    fetch('/reports/export/pdf/', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ type: currentReportType, data: currentReportData })
+    })
+    .then(r => r.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `report_${Date.now()}.pdf`;
+        a.click();
+    });
+}
+</script>
+{% endblock %}

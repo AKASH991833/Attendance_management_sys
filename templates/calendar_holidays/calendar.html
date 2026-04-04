@@ -1,0 +1,406 @@
+{% extends 'base.html' %}
+{% load calendar_filters %}
+
+{% block title %}Calendar - EduTrack Pro{% endblock %}
+
+{% block breadcrumb_current %}Calendar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="fas fa-calendar-alt"></i> Calendar</h1>
+        <p>Manage holidays, exams, and events</p>
+    </div>
+    <div class="calendar-nav">
+        <a href="/calendar/?month={{ prev_month }}&year={{ prev_year }}" class="btn btn-secondary">
+            <i class="fas fa-chevron-left"></i> Previous
+        </a>
+        <span class="calendar-title">{{ month_name }}</span>
+        <a href="/calendar/?month={{ next_month }}&year={{ next_year }}" class="btn btn-secondary">
+            Next <i class="fas fa-chevron-right"></i>
+        </a>
+    </div>
+</div>
+
+<div class="calendar-card">
+    <div class="calendar-header">
+        <div class="calendar-weekday">Sun</div>
+        <div class="calendar-weekday">Mon</div>
+        <div class="calendar-weekday">Tue</div>
+        <div class="calendar-weekday">Wed</div>
+        <div class="calendar-weekday">Thu</div>
+        <div class="calendar-weekday">Fri</div>
+        <div class="calendar-weekday">Sat</div>
+    </div>
+    <div class="calendar-grid">
+        {% for day_info in calendar_days %}
+        {% if day_info %}
+        {% with day=day_info.day %}
+        {% with holiday=holidays_by_date|dict_lookup:day %}
+        <div class="calendar-day 
+            {% if day in attendance_dates %}has-attendance{% endif %} 
+            {% if day in holidays_by_date %}has-holiday{% endif %} 
+            {% if day_info.is_today %}is-today{% endif %} 
+            {% if day_info.is_sunday %}is-sunday{% endif %}"
+             data-day="{{ day }}"
+             data-date="{{ year }}-{{ month|stringformat:"02d" }}-{{ day|stringformat:"02d" }}"
+             data-tooltip="{% if day_info.is_sunday and holiday %}Sunday & {{ holiday.title }}{% elif day_info.is_sunday %}Sunday{% elif holiday %}Holiday: {{ holiday.title }}{% else %}{{ day_info.weekday_name }}{% endif %}"
+             onclick="openHolidayModal('{{ year }}-{{ month|stringformat:"02d" }}-{{ day|stringformat:"02d" }}', {{ day }})">
+            
+            <!-- Day number -->
+            <span class="calendar-day-number {% if day_info.is_sunday %}sunday-text{% endif %} {% if day_info.is_today %}today-text{% endif %}">{{ day }}</span>
+            
+            <!-- Holiday badge (only if holiday exists) -->
+            {% if holiday %}
+            <div class="calendar-holiday-badge" title="{{ holiday.title }}">
+                <span class="holiday-icon">{{ holiday.icon }}</span>
+            </div>
+            {% endif %}
+            
+            <!-- Red dot for Sunday or Holiday (single dot, not duplicate) -->
+            {% if day_info.is_sunday or holiday %}
+            <span class="status-dot holiday-dot" title="{% if day_info.is_sunday and holiday %}Sunday & Holiday{% elif day_info.is_sunday %}Sunday{% else %}Holiday{% endif %}"></span>
+            {% endif %}
+            
+            <!-- Green dot for attendance (only if not Sunday/Holiday) -->
+            {% if day in attendance_dates and day_info.is_sunday == False and day not in holidays_by_date %}
+            <span class="status-dot attendance-dot" title="Attendance Marked"></span>
+            {% endif %}
+        </div>
+        {% endwith %}
+        {% endwith %}
+        {% else %}
+        <div class="calendar-day calendar-day-empty"></div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Legend -->
+<div class="calendar-legend">
+    <div class="legend-item">
+        <span class="legend-dot holiday-dot"></span>
+        <span>Sunday / Holiday</span>
+    </div>
+    <div class="legend-item">
+        <span class="legend-dot attendance-dot"></span>
+        <span>Attendance Marked</span>
+    </div>
+    <div class="legend-item">
+        <span class="legend-dot today-dot"></span>
+        <span>Today</span>
+    </div>
+</div>
+
+<!-- Holiday Modal -->
+<div class="modal-overlay" id="holidayModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Manage Day</h3>
+                <button class="modal-close" onclick="closeHolidayModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="selectedDateDisplay" class="date-display"></p>
+                <input type="hidden" id="holidayDate">
+                
+                <div id="existingHolidayInfo" style="display: none;"></div>
+                
+                <form id="holidayForm" style="display: none;">
+                    <div class="form-group">
+                        <label for="holidayTitle">Title</label>
+                        <input type="text" id="holidayTitle" class="form-control" placeholder="Holiday/Event name">
+                    </div>
+                    <div class="form-group">
+                        <label for="holidayType">Type</label>
+                        <select id="holidayType" class="form-control">
+                            <option value="holiday">Holiday</option>
+                            <option value="exam">Exam</option>
+                            <option value="event">Event</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="holidayDescription">Description</label>
+                        <textarea id="holidayDescription" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-primary" onclick="saveHoliday()">Save</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeHolidayModal()">Cancel</button>
+                    </div>
+                </form>
+                
+                <div id="deleteHolidaySection" style="display: none;">
+                    <button type="button" class="btn btn-danger btn-block" onclick="deleteHoliday()">Delete Holiday</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Calendar Navigation */
+.calendar-nav { 
+    display: flex; 
+    align-items: center; 
+    gap: 1rem; 
+    background: var(--card-bg);
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    margin-bottom: 1.5rem;
+}
+.calendar-title { 
+    font-size: 1.25rem; 
+    font-weight: 600; 
+    min-width: 200px; 
+    text-align: center;
+    color: var(--text-primary);
+}
+.calendar-nav .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* Calendar Card */
+.calendar-card { 
+    background: var(--card-bg); 
+    border-radius: var(--radius-lg); 
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+/* Calendar Header (Weekdays) */
+.calendar-header { 
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr); 
+    background: #f8fafc;
+    border-bottom: 1px solid var(--border);
+}
+.calendar-weekday { 
+    padding: 0.75rem 0.5rem; 
+    text-align: center; 
+    font-weight: 600; 
+    font-size: 0.75rem; 
+    text-transform: uppercase; 
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+}
+.calendar-weekday:first-child { 
+    color: #dc2626;
+}
+
+/* Calendar Grid */
+.calendar-grid { 
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background: var(--border);
+}
+
+/* Calendar Day Cells */
+.calendar-day { 
+    min-height: 100px; 
+    padding: 0.5rem; 
+    background: var(--card-bg);
+    cursor: pointer; 
+    transition: all 0.15s ease;
+    position: relative;
+    border: none;
+}
+.calendar-day:hover { 
+    background: #f8fafc;
+    z-index: 1;
+}
+.calendar-day.is-today { 
+    background: #eff6ff;
+    border: 2px solid #3b82f6;
+}
+.calendar-day.is-sunday { 
+    background: #fef2f2;
+}
+.calendar-day.is-sunday.is-today {
+    background: linear-gradient(135deg, #fef2f2 0%, #eff6ff 100%);
+}
+.calendar-day-empty { 
+    background: #f9fafb; 
+    border: none;
+}
+
+/* Day Number */
+.calendar-day-number { 
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-weight: 600; 
+    font-size: 0.875rem;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+.sunday-text { 
+    color: #dc2626;
+    font-weight: 700;
+}
+.today-text {
+    background: #3b82f6;
+    color: white;
+}
+
+/* Holiday Badge (icon only, clean) */
+.calendar-holiday-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+/* Status Dots - Single unified style */
+.status-dot { 
+    position: absolute; 
+    bottom: 0.5rem; 
+    left: 0.5rem;
+    width: 8px; 
+    height: 8px; 
+    border-radius: 50%;
+}
+.holiday-dot { 
+    background: #ef4444;
+}
+.attendance-dot { 
+    background: #10b981;
+}
+
+/* Legend */
+.calendar-legend { 
+    display: flex; 
+    flex-wrap: wrap;
+    gap: 1.5rem; 
+    justify-content: center; 
+    padding: 1rem; 
+    background: var(--card-bg); 
+    border-radius: var(--radius-lg); 
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+}
+.legend-item { 
+    display: flex; 
+    align-items: center; 
+    gap: 0.5rem; 
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+}
+.legend-dot { 
+    width: 10px; 
+    height: 10px; 
+    border-radius: 50%;
+}
+.holiday-dot { background: #ef4444; }
+.attendance-dot { background: #10b981; }
+.today-dot { 
+    border: 2px solid #3b82f6; 
+    background: transparent;
+    width: 8px;
+    height: 8px;
+}
+
+/* Tooltip (CSS-only, simple) */
+.calendar-day[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e293b;
+    color: white;
+    padding: 0.375rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 100;
+    margin-bottom: 0.25rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Modal */
+.modal-overlay { 
+    display: none; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0, 0, 0, 0.5); 
+    z-index: 9999; 
+    align-items: center; 
+    justify-content: center;
+}
+.modal-overlay.show { 
+    display: flex; 
+}
+.modal-dialog { 
+    background: var(--card-bg); 
+    border-radius: var(--radius-lg); 
+    width: 100%; 
+    max-width: 450px; 
+    max-height: 90vh; 
+    overflow-y: auto;
+}
+.modal-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 1rem 1.25rem; 
+    border-bottom: 1px solid var(--border);
+}
+.modal-header h3 { 
+    margin: 0; 
+    font-size: 1.125rem;
+}
+.modal-close { 
+    background: none; 
+    border: none; 
+    font-size: 1.5rem; 
+    cursor: pointer; 
+    color: var(--text-secondary);
+    line-height: 1;
+}
+.modal-body { 
+    padding: 1.25rem;
+}
+.date-display { 
+    font-weight: 600; 
+    margin-bottom: 1rem; 
+    color: var(--primary);
+    font-size: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .calendar-nav {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .calendar-title {
+        font-size: 1.125rem;
+    }
+    .calendar-day {
+        min-height: 70px;
+    }
+    .calendar-weekday {
+        font-size: 0.625rem;
+        padding: 0.5rem 0.25rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/calendar.js"></script>
+{% endblock %}

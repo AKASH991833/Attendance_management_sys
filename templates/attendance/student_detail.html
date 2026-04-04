@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ student.full_name }} - Attendance - EduTrack Pro{% endblock %}
+
+{% block breadcrumb_current %}Student Attendance{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="fas fa-chart-bar"></i> {{ student.full_name }}</h1>
+        <p>Roll No: {{ student.roll_number }} | {{ student.batch.name }}</p>
+    </div>
+    <a href="/students/" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Students
+    </a>
+</div>
+
+<!-- Student Info Card -->
+<div class="student-info-card">
+    <div class="info-section">
+        <h3>Student Information</h3>
+        <div class="info-grid">
+            <div class="info-item">
+                <label>Full Name</label>
+                <span>{{ student.full_name }}</span>
+            </div>
+            <div class="info-item">
+                <label>Roll Number</label>
+                <span>{{ student.roll_number }}</span>
+            </div>
+            <div class="info-item">
+                <label>Batch</label>
+                <span>{{ student.batch.name }}</span>
+            </div>
+            <div class="info-item">
+                <label>Year</label>
+                <span>{{ student.get_year_display }}</span>
+            </div>
+            <div class="info-item">
+                <label>Contact</label>
+                <span>{{ student.contact_number }}</span>
+            </div>
+            <div class="info-item">
+                <label>Email</label>
+                <span>{{ student.email|default:"Not provided" }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="attendance-stats">
+        <h3>Attendance Statistics</h3>
+        <div class="stats-cards-row" style="grid-template-columns: repeat(4, 1fr);">
+            <div class="stat-card stat-card-info">
+                <div class="stat-content">
+                    <h3>{{ total_classes }}</h3>
+                    <p>Total Classes</p>
+                </div>
+            </div>
+            <div class="stat-card stat-card-success">
+                <div class="stat-content">
+                    <h3>{{ present_count }}</h3>
+                    <p>Present</p>
+                </div>
+            </div>
+            <div class="stat-card stat-card-danger">
+                <div class="stat-content">
+                    <h3>{{ absent_count }}</h3>
+                    <p>Absent</p>
+                </div>
+            </div>
+            <div class="stat-card {% if attendance_percentage >= 75 %}stat-card-success{% elif attendance_percentage >= 60 %}stat-card-warning{% else %}stat-card-danger{% endif %}">
+                <div class="stat-content">
+                    <h3>{{ attendance_percentage }}%</h3>
+                    <p>Attendance</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Attendance Progress Bar -->
+        <div class="attendance-progress">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ attendance_percentage }}%; background: {% if attendance_percentage >= 75 %}var(--success){% elif attendance_percentage >= 60 %}var(--warning){% else %}var(--danger){% endif %};"></div>
+            </div>
+            <div class="progress-labels">
+                <span>0%</span>
+                <span>60%</span>
+                <span>75%</span>
+                <span>100%</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Records Table -->
+<div class="table-card mt-4">
+    <h3>Attendance History</h3>
+    {% if page_obj %}
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Batch</th>
+                    <th>Status</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in page_obj %}
+                <tr>
+                    <td>{{ record.date|date:"M d, Y" }}</td>
+                    <td>{{ record.batch.name }}</td>
+                    <td>
+                        <span class="badge {% if record.status == 'present' %}badge-success{% elif record.status == 'absent' %}badge-danger{% elif record.status == 'late' %}badge-warning{% else %}badge-info{% endif %}">
+                            {{ record.get_status_display }}
+                        </span>
+                    </td>
+                    <td>{{ record.notes|default:"-" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page=1" class="btn btn-sm btn-secondary">First</a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-sm btn-secondary">Previous</a>
+        {% endif %}
+        <span class="page-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-sm btn-secondary">Next</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-sm btn-secondary">Last</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-clipboard-list"></i>
+        <h3>No attendance records</h3>
+        <p>No attendance has been marked for this student yet</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.student-info-card { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+.info-section, .attendance-stats { background: var(--card-bg); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow); }
+.info-section h3, .attendance-stats h3 { margin-bottom: 1rem; font-size: 1rem; }
+.info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.info-item label { display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem; }
+.info-item span { font-weight: 500; }
+.attendance-progress { margin-top: 1.5rem; }
+.progress-bar { height: 24px; background: var(--border); border-radius: 9999px; overflow: hidden; }
+.progress-fill { height: 100%; transition: width 0.3s ease; }
+.progress-labels { display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-secondary); }
+.mt-4 { margin-top: 1.5rem; }
+</style>
+{% endblock %}

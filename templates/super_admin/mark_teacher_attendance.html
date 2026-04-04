@@ -1,0 +1,610 @@
+{% extends 'base.html' %}
+
+{% block title %}Mark Teacher Attendance - EduTrack Pro{% endblock %}
+
+{% block breadcrumb_current %}Teacher Attendance{% endblock %}
+
+{% block extra_css %}
+<style>
+    .attendance-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+    
+    .attendance-bg::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            linear-gradient(135deg, rgba(15, 23, 42, 0.4) 0%, rgba(30, 27, 75, 0.35) 50%, rgba(88, 28, 135, 0.4) 100%),
+            url('/static/images/bg-dashboard.jpg') center center/cover no-repeat fixed;
+        opacity: 0.6;
+    }
+
+    .page-header {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(25px) saturate(200%);
+        -webkit-backdrop-filter: blur(25px) saturate(200%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 28px;
+        padding: clamp(1.5rem, 4vw, 2.5rem);
+        margin-bottom: 2rem;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .page-header h1 {
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        font-weight: 800;
+        color: rgba(255, 255, 255, 0.98);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .page-header p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: clamp(0.9rem, 2vw, 1rem);
+        margin: 0.5rem 0 0 0;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 1.25rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        background: rgba(255, 255, 255, 0.06);
+        transform: translateY(-4px);
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        color: rgba(255, 255, 255, 0.98);
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-card.present .stat-number { color: #6ee7b7; }
+    .stat-card.absent .stat-number { color: #fca5a5; }
+    .stat-card.leave .stat-number { color: #fcd34d; }
+    .stat-card.unmarked .stat-number { color: rgba(255, 255, 255, 0.5); }
+
+    .date-nav {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 0.75rem 1.25rem;
+    }
+
+    .date-nav a {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.25rem;
+        transition: all 0.3s ease;
+        padding: 0.5rem;
+        border-radius: 8px;
+    }
+
+    .date-nav a:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .date-nav .current-date {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: white;
+        min-width: 140px;
+        text-align: center;
+    }
+
+    .attendance-form {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        padding: clamp(1.5rem, 3vw, 2rem);
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .form-header h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.95);
+        margin: 0;
+    }
+
+    .teacher-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .teacher-row {
+        display: grid;
+        grid-template-columns: auto 1fr 150px 200px auto;
+        gap: 1rem;
+        align-items: center;
+        padding: 1rem 1.25rem;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .teacher-row:hover {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .teacher-row.marked-present {
+        border-color: rgba(16, 185, 129, 0.3);
+        background: rgba(16, 185, 129, 0.05);
+    }
+
+    .teacher-row.marked-absent {
+        border-color: rgba(239, 68, 68, 0.3);
+        background: rgba(239, 68, 68, 0.05);
+    }
+
+    .teacher-row.marked-leave {
+        border-color: rgba(245, 158, 11, 0.3);
+        background: rgba(245, 158, 11, 0.05);
+    }
+
+    .teacher-checkbox {
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        accent-color: #6ee7b7;
+    }
+
+    .teacher-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .teacher-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .teacher-name {
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.95);
+        font-size: 0.95rem;
+    }
+
+    .teacher-dept {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .status-select {
+        padding: 0.625rem 1rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .status-select:focus {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .status-select option {
+        background: #1a202c;
+        color: white;
+    }
+
+    .notes-input {
+        padding: 0.5rem 0.875rem;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.03);
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.85rem;
+        width: 100%;
+    }
+
+    .notes-input:focus {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .notes-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    .status-badge {
+        padding: 0.375rem 0.875rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .status-badge.present {
+        background: rgba(16, 185, 129, 0.15);
+        color: #6ee7b7;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-badge.absent {
+        background: rgba(239, 68, 68, 0.15);
+        color: #fca5a5;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .status-badge.late {
+        background: rgba(251, 191, 36, 0.15);
+        color: #fcd34d;
+        border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .status-badge.half_day {
+        background: rgba(251, 146, 60, 0.15);
+        color: #fb923c;
+        border: 1px solid rgba(251, 146, 60, 0.3);
+    }
+
+    .status-badge.on_leave {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fcd34d;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-mark {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.5rem;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-mark:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .btn-mark.primary {
+        background: rgba(16, 185, 129, 0.2);
+        border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-mark.primary:hover {
+        background: rgba(16, 185, 129, 0.3);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 20px;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    @media (max-width: 1024px) {
+        .teacher-row {
+            grid-template-columns: auto 1fr 120px;
+        }
+        .teacher-row .notes-input {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .date-nav {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .teacher-row {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+
+        .teacher-info {
+            justify-content: center;
+        }
+
+        .form-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .action-buttons .btn-mark {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="attendance-bg"></div>
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1>
+            <i class="fas fa-user-check"></i>
+            Mark Teacher Attendance
+        </h1>
+        <p>Mark attendance for all teachers - Track who came and who didn't</p>
+    </div>
+    <div class="date-nav">
+        <a href="?date={{ prev_date|date:'Y-m-d' }}" title="Previous Day">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        <form method="get" style="display: inline;">
+            <input type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}" 
+                   onchange="this.form.submit()" 
+                   style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); 
+                          color: white; padding: 0.5rem 1rem; border-radius: 10px; cursor: pointer;">
+        </form>
+        {% if not is_future %}
+        <a href="?date={{ next_date|date:'Y-m-d' }}" title="Next Day">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Statistics -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">{{ total_teachers }}</div>
+        <div class="stat-label">Total Teachers</div>
+    </div>
+    <div class="stat-card present">
+        <div class="stat-number">{{ present_count }}</div>
+        <div class="stat-label">Present</div>
+    </div>
+    <div class="stat-card absent">
+        <div class="stat-number">{{ absent_count }}</div>
+        <div class="stat-label">Absent</div>
+    </div>
+    <div class="stat-card leave">
+        <div class="stat-number">{{ leave_count }}</div>
+        <div class="stat-label">On Leave</div>
+    </div>
+    <div class="stat-card unmarked">
+        <div class="stat-number">{{ unmarked_count }}</div>
+        <div class="stat-label">Unmarked</div>
+    </div>
+    <div class="stat-card present">
+        <div class="stat-number">{{ present_percentage }}%</div>
+        <div class="stat-label">Attendance %</div>
+    </div>
+</div>
+
+<!-- Attendance Form -->
+{% if teacher_list %}
+<form method="post" class="attendance-form">
+    {% csrf_token %}
+    <div class="form-header">
+        <h3>
+            <i class="fas fa-list"></i>
+            Teacher Attendance List - {{ selected_date|date:'l, d M Y' }}
+        </h3>
+        <span style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">
+            {{ teacher_list|length }} teachers
+        </span>
+    </div>
+
+    <div class="teacher-list">
+        {% for item in teacher_list %}
+        <div class="teacher-row {% if item.status == 'present' or item.status == 'late' or item.status == 'half_day' %}marked-present{% elif item.status == 'absent' %}marked-absent{% elif item.status == 'on_leave' %}marked-leave{% endif %}">
+            <input type="checkbox" class="teacher-checkbox" name="teacher_{{ item.teacher.id }}" value="present"
+                   {% if item.status == 'present' or item.status == 'late' or item.status == 'half_day' %}checked{% endif %}
+                   onchange="updateTeacherStatus({{ item.teacher.id }})">
+            
+            <div class="teacher-info">
+                <div class="teacher-avatar">
+                    {{ item.teacher.full_name|first|upper|default:item.teacher.user.username|first|upper }}
+                </div>
+                <div>
+                    <div class="teacher-name">{{ item.teacher.full_name|default:item.teacher.user.username }}</div>
+                    <div class="teacher-dept">{{ item.teacher.department|default:'General' }}</div>
+                </div>
+            </div>
+
+            <select name="status_{{ item.teacher.id }}" class="status-select" id="status_{{ item.teacher.id }}" 
+                    onchange="updateStatusBadge({{ item.teacher.id }})">
+                <option value="present" {% if item.status == 'present' %}selected{% endif %}>Present</option>
+                <option value="late" {% if item.status == 'late' %}selected{% endif %}>Late</option>
+                <option value="half_day" {% if item.status == 'half_day' %}selected{% endif %}>Half Day</option>
+                <option value="absent" {% if item.status == 'absent' %}selected{% endif %}>Absent</option>
+                <option value="on_leave" {% if item.status == 'on_leave' %}selected{% endif %}>On Leave</option>
+            </select>
+
+            <input type="text" name="notes_{{ item.teacher.id }}" class="notes-input" 
+                   placeholder="Add note (optional)" value="{{ item.notes }}">
+
+            <span class="status-badge" id="badge_{{ item.teacher.id }}">
+                {% if item.status %}
+                    {{ item.get_status_display|default:item.status }}
+                {% else %}
+                    Pending
+                {% endif %}
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="action-buttons">
+        <button type="button" class="btn-mark primary" onclick="markAllPresent()">
+            <i class="fas fa-check-double"></i>
+            Mark All Present
+        </button>
+        <button type="submit" name="action" value="mark_attendance" class="btn-mark primary">
+            <i class="fas fa-save"></i>
+            Save Attendance
+        </button>
+    </div>
+</form>
+
+<script>
+    function updateTeacherStatus(teacherId) {
+        const checkbox = document.querySelector(`input[name="teacher_${teacherId}"]`);
+        const statusSelect = document.getElementById(`status_${teacherId}`);
+        
+        if (checkbox.checked) {
+            statusSelect.value = 'present';
+        } else {
+            statusSelect.value = 'absent';
+        }
+        updateStatusBadge(teacherId);
+    }
+
+    function updateStatusBadge(teacherId) {
+        const statusSelect = document.getElementById(`status_${teacherId}`);
+        const badge = document.getElementById(`badge_${teacherId}`);
+        const row = statusSelect.closest('.teacher-row');
+        
+        badge.textContent = statusSelect.options[statusSelect.selectedIndex].text;
+        
+        // Update row class
+        row.classList.remove('marked-present', 'marked-absent', 'marked-leave');
+        if (['present', 'late', 'half_day'].includes(statusSelect.value)) {
+            row.classList.add('marked-present');
+        } else if (statusSelect.value === 'absent') {
+            row.classList.add('marked-absent');
+        } else if (statusSelect.value === 'on_leave') {
+            row.classList.add('marked-leave');
+        }
+    }
+
+    function markAllPresent() {
+        const checkboxes = document.querySelectorAll('.teacher-checkbox');
+        const statusSelects = document.querySelectorAll('.status-select');
+        
+        checkboxes.forEach(cb => cb.checked = true);
+        statusSelects.forEach(select => {
+            select.value = 'present';
+        });
+        
+        // Update all badges
+        document.querySelectorAll('.teacher-select').forEach((_, i) => {
+            updateStatusBadge(document.querySelectorAll('.teacher-select')[i].closest('.teacher-row').querySelector('.status-select').id.replace('status_', ''));
+        });
+        
+        // Refresh all badges
+        statusSelects.forEach(select => {
+            updateStatusBadge(select.id.replace('status_', ''));
+        });
+    }
+
+    // Initialize badges on page load
+    document.querySelectorAll('.status-select').forEach(select => {
+        updateStatusBadge(select.id.replace('status_', ''));
+    });
+</script>
+
+{% else %}
+<div class="empty-state">
+    <i class="fas fa-users"></i>
+    <h3>No Teachers Found</h3>
+    <p>There are no active teachers to mark attendance for.</p>
+</div>
+{% endif %}
+{% endblock %}

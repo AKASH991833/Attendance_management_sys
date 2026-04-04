@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}My Files - EduTrack Pro{% endblock %}
+
+{% block breadcrumb_current %}Files{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="fas fa-folder-open"></i> My Files</h1>
+        <p>Upload and manage your files</p>
+    </div>
+    <a href="/workspace/files/upload/" class="btn btn-primary">
+        <i class="fas fa-upload"></i> Upload File
+    </a>
+</div>
+
+<!-- Search -->
+<div class="filters-bar">
+    <form method="get" class="filters-form">
+        <div class="filter-group" style="flex: 1;">
+            <input type="text" name="search" value="{{ search_query }}" placeholder="Search files..." class="form-control">
+        </div>
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> Search
+            </button>
+            <a href="/workspace/files/" class="btn btn-secondary">
+                <i class="fas fa-redo"></i> Clear
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Files Table -->
+<div class="table-card">
+    {% if files %}
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Size</th>
+                    <th>Uploaded</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in files %}
+                <tr>
+                    <td>
+                        <i class="fas {{ file.icon_class }} fa-lg" style="color: var(--primary);"></i>
+                    </td>
+                    <td><strong>{{ file.title }}</strong></td>
+                    <td>{{ file.description|truncatechars:50|default:"-" }}</td>
+                    <td>{{ file.file_size_display }}</td>
+                    <td>{{ file.uploaded_at|date:"M d, Y" }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="/workspace/files/{{ file.id }}/download/" class="btn-icon" title="Download">
+                                <i class="fas fa-download"></i>
+                            </a>
+                            <a href="/workspace/files/{{ file.id }}/delete/" class="btn-icon btn-danger" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-folder-open"></i>
+        <h3>No files uploaded</h3>
+        <p>Upload your first file to get started</p>
+        <a href="/workspace/files/upload/" class="btn btn-primary">
+            <i class="fas fa-upload"></i> Upload File
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

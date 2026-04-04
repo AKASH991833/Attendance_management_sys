@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}My Notes - EduTrack Pro{% endblock %}
+
+{% block breadcrumb_current %}Workspace{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="fas fa-sticky-note"></i> My Notes</h1>
+        <p>Your personal workspace for notes</p>
+    </div>
+    <a href="/workspace/notes/add/" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add Note
+    </a>
+</div>
+
+<!-- Search -->
+<div class="filters-bar">
+    <form method="get" class="filters-form">
+        <div class="filter-group" style="flex: 1;">
+            <input type="text" name="search" value="{{ search_query }}" placeholder="Search notes..." class="form-control">
+        </div>
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> Search
+            </button>
+            <a href="/workspace/notes/" class="btn btn-secondary">
+                <i class="fas fa-redo"></i> Clear
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Notes Grid -->
+<div class="notes-grid">
+    {% if notes %}
+    {% for note in notes %}
+    <div class="note-card {% if note.is_pinned %}note-pinned{% endif %}">
+        <div class="note-header">
+            <h3>{{ note.title }}</h3>
+            <div class="note-actions">
+                {% if note.is_pinned %}
+                <span class="badge badge-warning"><i class="fas fa-thumbtack"></i> Pinned</span>
+                {% endif %}
+                <a href="/workspace/notes/{{ note.id }}/edit/" class="btn-icon">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a href="/workspace/notes/{{ note.id }}/delete/" class="btn-icon btn-danger">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>
+        <div class="note-content">
+            <p>{{ note.preview }}</p>
+        </div>
+        <div class="note-footer">
+            <span class="note-date">{{ note.created_at|date:"M d, Y" }}</span>
+            <span class="note-date">{{ note.created_at|date:"g:i A" }}</span>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-sticky-note"></i>
+        <h3>Your workspace is empty</h3>
+        <p>Start by adding your first note</p>
+        <a href="/workspace/notes/add/" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Note
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+.notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+.note-card { background: var(--card-bg); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow); transition: var(--transition); }
+.note-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.note-card.note-pinned { border: 2px solid var(--warning); }
+.note-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+.note-header h3 { font-size: 1rem; margin: 0; }
+.note-actions { display: flex; gap: 0.25rem; align-items: center; }
+.note-content { margin-bottom: 1rem; }
+.note-content p { color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6; }
+.note-footer { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); }
+</style>
+{% endblock %}
