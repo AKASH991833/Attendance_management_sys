@@ -10,17 +10,9 @@ The application is now **fully functional** and running with SQLite database (de
 
 Your application is running at: **http://127.0.0.1:8000/**
 
-### Default Login Credentials:
+### Create your own login
 
-**Super Admin (Create First):**
-```bash
-python manage.py createsuperadmin
-```
-
-**Regular Teacher:**
-- **Username:** `admin`
-- **Password:** `admin123`
-- **Login URL:** http://127.0.0.1:8000/login/
+Create a super-admin with `python manage.py createsuperadmin`. Create each teacher account with a unique password before signing in at http://127.0.0.1:8000/login/.
 
 ---
 
